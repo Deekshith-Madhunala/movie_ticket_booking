@@ -1,0 +1,7 @@
+/* Custom styles for Slick slider arrows */
+.slick-prev:before, 
+.slick-next:before {
+    color: lightblue; /* Change the color to whatever you like */
+}
+
+
