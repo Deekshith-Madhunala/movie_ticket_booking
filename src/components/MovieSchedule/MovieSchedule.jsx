@@ -10,7 +10,7 @@ import {
   CardMedia,
   Stack,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import { useLocation, useNavigate } from 'react-router-dom';
 import genericService from '../../rest/GenericService';
@@ -45,7 +45,7 @@ const MovieSchedule = () => {
     console.log("Selected Time:", selectedSeat.time);
     console.log("Selected Seat Type:", selectedSeat.type);
     console.log("Selected Theater:", selectedTheater);
-    
+
     if (!selectedSeat.time || !selectedSeat.type) {
       alert('Please select a showtime and seat type.');
       return;
@@ -83,7 +83,7 @@ const MovieSchedule = () => {
       </AppBar>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={9}>
           <Typography variant="h3" textAlign={'initial'} marginBottom={'10px'}>
             Select the cinema date you want to watch:
           </Typography>
@@ -125,19 +125,20 @@ const MovieSchedule = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
-                  alignItems: 'center',
+                  alignItems: 'start',
+                  width: 'auto',
                   backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
                   color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
                 }}
               >
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h6">{theater.name}</Typography>
-                  <Typography variant="body2">{theater.address}</Typography>
+                <CardContent sx={{ textAlign: 'start' }}>
+                  <Typography variant="h4">{theater.name}</Typography>
+                  <Typography variant="body1">{theater.address}</Typography>
 
                   <Box sx={{ mt: 1, display: 'block', flexWrap: 'wrap', justifyContent: 'center' }}>
                     {/* GOLD Seat Timing */}
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                      GOLD Seats
+                      GOLD Seats - $50
                     </Typography>
                     {['11:00', '13:45', '15:40', '17:15', '21:00'].map((time) => (
                       <Button
@@ -159,13 +160,13 @@ const MovieSchedule = () => {
                           },
                         }}
                       >
-                        {time} - $15
+                        {time} 
                       </Button>
                     ))}
 
                     {/* Regular Seat Timing */}
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
-                      Regular Seats
+                      Regular Seats - $30
                     </Typography>
 
                     {['11:00', '13:45', '15:40', '17:15', '21:00'].map((time) => (
@@ -188,7 +189,7 @@ const MovieSchedule = () => {
                           },
                         }}
                       >
-                        {time} - $10
+                        {time}
                       </Button>
                     ))}
                   </Box>
@@ -196,29 +197,24 @@ const MovieSchedule = () => {
               </Card>
             ))}
           </Stack>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleBookTicket}
-            disabled={!selectedSeat.time || !selectedSeat.type || !selectedTheater}
-            sx={{ mt: 2 }}
-          >
-            Book Ticket
-          </Button>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Box sx={{ p: 2, borderRadius: 2 }}>
             {movie?.poster && (
               <Card elevation={0} sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
                 <CardMedia
                   component="img"
                   image={movie.poster}
-                  height="300"
-                  borderRadius="10px"
                   alt={movie.title}
-                  style={{ borderRadius: '8px', marginBottom: '25px' }}
+                  alignItems="center"
+                  sx={{
+                    borderRadius: '8px',
+                    marginBottom: '25px',
+                    width: 'auto', // Ensure the image takes the full width of the container
+                    height: 'auto', // Set fixed height to 450px
+                    objectFit: 'cover', // Ensures the entire image is visible without being cut off
+                  }}
                 />
                 <CardContent style={{ padding: '0px' }}>
                   <Typography variant="h4" gutterBottom textAlign="justify">
@@ -236,14 +232,22 @@ const MovieSchedule = () => {
                     <Item>Rating :</Item>
                     <Item>{movie.rating}</Item>
                   </Stack>
-                  <Stack direction="row" spacing={4} display="flex" justifyContent="start">
-                    <Item>Description :</Item>
-                    <Item>{movie.description}</Item>
-                  </Stack>
+                  <Typography variant='h6' padding={'0px'}>
+                    {movie.description}
+                  </Typography>
                 </CardContent>
               </Card>
             )}
           </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleBookTicket}
+            disabled={!selectedSeat.time || !selectedSeat.type || !selectedTheater}
+            sx={{ mt: 2 }}
+          >
+            Book Ticket
+          </Button>
         </Grid>
       </Grid>
     </Box>

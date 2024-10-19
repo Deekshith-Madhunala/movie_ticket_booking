@@ -4,13 +4,27 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const BookingSuccess = () => {
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType } = location.state || {};
     const navigate = useNavigate();
 
     const handleBackToHome = () => {
+        // Create an object with the values you want to display
+        const dataToDisplay = {
+            movie,
+            selectedDate,
+            selectedTime,
+            selectedTheater,
+            selectedSeats,
+            selectedSeatType,
+        };
+
+        // Show the values in JSON format inside the alert
+        alert(JSON.stringify(dataToDisplay, null, 2)); // Indent with 2 spaces for readability
+
         // Navigate back to home or movie listing page
         navigate('/');
     };
+
 
     return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -31,6 +45,9 @@ const BookingSuccess = () => {
                     </Typography>
                     <Typography variant="h6" gutterBottom>
                         Seats: {selectedSeats.join(', ')}
+                    </Typography>
+                    <Typography variant="h6" gutterBottom>
+                        Seat type: {selectedSeatType}
                     </Typography>
                     <Typography variant="h6" color="green" gutterBottom>
                         Payment Status: Success

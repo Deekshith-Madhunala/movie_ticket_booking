@@ -13,8 +13,8 @@ const Item = styled(Typography)(({ theme }) => ({
 const SeatSelection = () => {
     // Retrieve passed movie, theater, date, and time details using useLocation
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater } = location.state || {};
-    
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeatType } = location.state || {};
+
     const navigate = useNavigate(); // Hook to navigate to another route
 
     const [selectedSeats, setSelectedSeats] = useState([]);
@@ -59,6 +59,7 @@ const SeatSelection = () => {
                 selectedTime,
                 selectedTheater,
                 selectedSeats,
+                selectedSeatType
             },
         });
     };
@@ -70,7 +71,7 @@ const SeatSelection = () => {
                 Seat Selection for {movie?.title || "Movie Title"}
             </Typography>
             <Typography variant="h6" gutterBottom>
-                Theater: {selectedTheater} | Date: {selectedDate} | Time: {selectedTime}
+                Theater: {selectedTheater} | Date: {selectedDate} | Time: {selectedTime} | Seat Type: {selectedSeatType}
             </Typography>
 
             <Grid container spacing={1} justifyContent="center" sx={{ mb: 4 }}>
@@ -109,16 +110,19 @@ const SeatSelection = () => {
                 ))}
             </Grid>
 
-            <Stack direction="row" spacing={4} display="flex" justifyContent="space-between" sx={{ mb: 2 }}>
+            <Stack direction="row" spacing={4} display="flex" justifyContent="space-evenly" sx={{ mb: 2 }}>
                 <Item>
-                    <Typography>Total Price:</Typography>
-                    <Typography>{50 * selectedSeats.length} IDR</Typography>
+                    <Typography variant='h4'>Total Price:</Typography>
+                    <Typography variant='h5'>
+                        ${selectedSeatType === 'Gold' ? (50 * selectedSeats.length) : (30 * selectedSeats.length)}
+                    </Typography>
                 </Item>
                 <Item>
-                    <Typography>Selected Seats:</Typography>
-                    <Typography>{selectedSeats.join(', ')}</Typography>
+                    <Typography variant='h4'>Selected Seats:</Typography>
+                    <Typography variant='h5'>{selectedSeats.join(', ')}</Typography>
                 </Item>
             </Stack>
+
 
             <Button
                 variant="contained"
