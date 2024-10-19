@@ -5,5 +5,8 @@ const MyTickets = React.lazy(() => import('../components/Tickets/MyTickets'));
 const News = React.lazy(() => import('../components/News/News'));
 const Login = React.lazy(() => import('../components/Login/Login'));
 const MovieSchedule = React.lazy(() => import('../components/MovieSchedule/MovieSchedule'));
+const SeatSelection = React.lazy(() => import('../components/SeatSelection/SeatSelection'));
+const ConfirmPayment = React.lazy(() => import('../components/ConfirmPayment/ConfirmPayment'));
+const BookingSuccess = React.lazy(() => import('../components/BookingSuccess/BookingSuccess'));
 
-export { Home, MyTickets, News, Login, MovieSchedule };
+export { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess };
