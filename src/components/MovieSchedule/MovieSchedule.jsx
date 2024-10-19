@@ -27,6 +27,7 @@ const MovieSchedule = () => {
 
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTheater, setSelectedTheater] = useState('');
+  const [selectedTheaterId, setSelectedTheaterId] = useState('');
   const [selectedSeat, setSelectedSeat] = useState({ type: '', time: '' });
   const [theaters, setTheaters] = useState([]);
 
@@ -45,6 +46,7 @@ const MovieSchedule = () => {
     console.log("Selected Time:", selectedSeat.time);
     console.log("Selected Seat Type:", selectedSeat.type);
     console.log("Selected Theater:", selectedTheater);
+    console.log("Selected Theater Id:", selectedTheaterId);
 
     if (!selectedSeat.time || !selectedSeat.type) {
       alert('Please select a showtime and seat type.');
@@ -55,6 +57,7 @@ const MovieSchedule = () => {
         movie,
         selectedDate,
         selectedTheater,
+        selectedTheaterId,
         selectedTime: selectedSeat.time, // Pass the selected time
         selectedSeatType: selectedSeat.type, // Pass the selected seat type
       },
@@ -117,6 +120,7 @@ const MovieSchedule = () => {
                 variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
                 onClick={() => {
                   setSelectedTheater(theater.name);
+                  setSelectedTheaterId(theater.theaterId); // Store the selected theater ID for future use
                   setSelectedSeat({ type: '', time: '' }); // Reset selected seat when changing theater
                 }}
                 sx={{
@@ -147,6 +151,7 @@ const MovieSchedule = () => {
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent the card click event
                           setSelectedTheater(theater.name); // Automatically select the theater
+                          setSelectedTheaterId(theater.theaterId); // Store the selected theater ID for future use
                           setSelectedSeat({ type: 'Gold', time }); // Set selected seat type and time
                         }}
                         sx={{
@@ -160,7 +165,7 @@ const MovieSchedule = () => {
                           },
                         }}
                       >
-                        {time} 
+                        {time}
                       </Button>
                     ))}
 
@@ -176,6 +181,7 @@ const MovieSchedule = () => {
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent the card click event
                           setSelectedTheater(theater.name); // Automatically select the theater
+                          setSelectedTheaterId(theater.theaterId); // Store the selected theater ID for future use
                           setSelectedSeat({ type: 'Regular', time }); // Set selected seat type and time
                         }}
                         sx={{

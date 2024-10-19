@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const ConfirmPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId } = location.state || {};
 
     const [paymentMethod, setPaymentMethod] = useState('');
     const [openMethodDialog, setOpenMethodDialog] = useState(false);
@@ -36,7 +36,7 @@ const ConfirmPayment = () => {
     // Function to navigate to BookingSuccess component
     const navigateToSuccess = () => {
         navigate('/booking-success', {
-            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType }
+            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId }
         });
     };
 

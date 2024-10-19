@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const BookingSuccess = () => {
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId } = location.state || {};
     const navigate = useNavigate();
 
     const handleBackToHome = () => {
@@ -16,6 +16,7 @@ const BookingSuccess = () => {
             selectedTheater,
             selectedSeats,
             selectedSeatType,
+            selectedTheaterId
         };
 
         // Show the values in JSON format inside the alert

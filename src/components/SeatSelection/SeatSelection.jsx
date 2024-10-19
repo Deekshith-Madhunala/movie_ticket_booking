@@ -13,7 +13,7 @@ const Item = styled(Typography)(({ theme }) => ({
 const SeatSelection = () => {
     // Retrieve passed movie, theater, date, and time details using useLocation
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeatType } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeatType, selectedTheaterId } = location.state || {};
 
     const navigate = useNavigate(); // Hook to navigate to another route
 
@@ -59,7 +59,8 @@ const SeatSelection = () => {
                 selectedTime,
                 selectedTheater,
                 selectedSeats,
-                selectedSeatType
+                selectedSeatType,
+                selectedTheaterId
             },
         });
     };
