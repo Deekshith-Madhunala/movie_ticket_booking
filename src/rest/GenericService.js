@@ -47,6 +47,26 @@ const genericService = {
         }
     },   
 
+    getTheaters: async () => {
+        const url = `${API_URL}/api/theaters`;  // Make sure API_URL is valid and doesn't have '+/'
+        console.log(url);
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                // Log the status in case of failure
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            // Parse and return the response data
+            return await response.json();
+        } catch (error) {
+            // Log the error
+            console.error('Error fetching Theater data:', error);
+            // Re-throw the error to be handled by the calling code
+            throw error;
+        }
+    },   
+
     createMovie: async (movieData) => {
         // Map the OMDb fields to your backend model
         const mappedMovieData = {
