@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Radio, RadioGroup, FormControlLabel, TextField, Card, CardContent, CardActions } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ const ConfirmPayment = () => {
     const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId } = location.state || {};
 
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [selectedTotalPrice, setSelectedTotalPrice] = useState('');
     const [openMethodDialog, setOpenMethodDialog] = useState(false);
     const [openCardDetailsDialog, setOpenCardDetailsDialog] = useState(false);
     const [cardNumber, setCardNumber] = useState('');
@@ -36,9 +37,13 @@ const ConfirmPayment = () => {
     // Function to navigate to BookingSuccess component
     const navigateToSuccess = () => {
         navigate('/booking-success', {
-            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId }
+            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedTotalPrice}
         });
     };
+
+    useEffect(() => {
+        setSelectedTotalPrice(selectedSeatType === 'Gold'? (50 * selectedSeats.length) : (30 * selectedSeats.length));
+    }, []);
 
     return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -58,7 +63,7 @@ const ConfirmPayment = () => {
                         Seat type: {selectedSeatType}
                     </Typography>
                     <Typography variant="h6" gutterBottom>
-                        Total Price: ${selectedSeatType === 'Gold' ? (50 * selectedSeats.length) : (30 * selectedSeats.length)}
+                        Total Price: {selectedTotalPrice}
                     </Typography>
                 </CardContent>
                 <CardActions>
