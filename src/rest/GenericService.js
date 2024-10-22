@@ -58,38 +58,50 @@ const genericService = {
         }
     },
 
-    createMovie: async (movieData) => {
-        // Map the OMDb fields to your backend model
-        const mappedMovieData = {
-            title: movieData.Title,
-            description: movieData.Plot,  // Use "Plot" from OMDb as "description"
-            poster: movieData.Poster,
-            duration: parseInt(movieData.Runtime), // Convert "Runtime" from "XX min" to an integer
-            genre: movieData.Genre,
-            releaseDate: new Date(movieData.Released).toISOString().split('T')[0],  // Format release date as YYYY-MM-DD
-            rating: parseFloat(movieData.imdbRating), // Convert IMDb rating to a decimal
-        };
-        const postUrl = `${API_URL}/api/movies`;  // Local API endpoint to post the movie data
-        const postOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(mappedMovieData), // Send the mapped movie data
-        };
-
+    createMovie: async (title, year) => {
         try {
+            // Call getMovie to fetch movie data from OMDb
+            const movieData = await genericService.getMovie(title, year); // Wait for the movie data
+            console.log('Fetched Movie Data:', movieData);
+    
+            // Check if movieData is valid (ensure the movie exists in OMDb)
+            if (!movieData || movieData.Response === 'False') {
+                throw new Error(`Movie not found: ${movieData.Error || 'Unknown error'}`);
+            }
+    
+            // Map the OMDb fields to your backend model
+            const mappedMovieData = {
+                title: movieData.Title,
+                description: movieData.Plot,  // Use "Plot" from OMDb as "description"
+                poster: movieData.Poster,
+                duration: parseInt(movieData.Runtime), // Convert "Runtime" from "XX min" to an integer
+                genre: movieData.Genre,
+                releaseDate: new Date(movieData.Released).toISOString().split('T')[0],  // Format release date as YYYY-MM-DD
+                rating: parseFloat(movieData.imdbRating), // Convert IMDb rating to a decimal
+            };
+    
+            const postUrl = `${API_URL}/api/movies`;  // Local API endpoint to post the movie data
+            const postOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(mappedMovieData), // Send the mapped movie data
+            };
+    
+            // Post the movie data to the backend
             const postResponse = await fetch(postUrl, postOptions);
             if (!postResponse.ok) {
                 throw new Error(`HTTP error! Status: ${postResponse.status}`);
             }
-            return await postResponse.json();
+    
+            return await postResponse.json(); // Return the created movie data
         } catch (error) {
             console.error('Error creating movie data:', error);
             throw error; // Re-throw the error for handling in the calling code
         }
     },
-
+    
     createBooking: async (bookingData) => {
         const postUrl = `${API_URL}/api/bookings`;  // Local API endpoint to post the booking data
         const postOptions = {
@@ -179,6 +191,29 @@ const genericService = {
             throw error; // Re-throw the error for handling in the calling code
         }
     },
+
+    cancelBooking: async (bookingId) => {
+        const url = `${API_URL}/api/bookings/${bookingId}`; // Construct the API URL with booking ID
+        const deleteOptions = {
+            method: 'DELETE',
+        };   
+        try {
+            const deleteResponse = await fetch(url, deleteOptions);
+            
+            // Check if the response status is OK
+            if (!deleteResponse.ok) {
+                const errorText = await deleteResponse.text(); // Get the error message
+                throw new Error(`HTTP error! Status: ${deleteResponse.status} - ${errorText}`);
+            }
+    
+            // If no response body is returned, just return an empty object
+            return {}; // Return an empty object or any success message you prefer
+        } catch (error) {
+            console.error('Error cancelling booking:', error);
+            throw error; // Re-throw the error for handling in the calling code
+        }
+    }
+    ,
 };
 
 export default genericService;

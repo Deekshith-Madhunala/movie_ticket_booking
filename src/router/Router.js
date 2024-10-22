@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from '../Navbar'; 
-import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess } from '../pages';
+import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie } from '../pages';
 
 const AppRouter = () => {
   return (
@@ -17,6 +17,7 @@ const AppRouter = () => {
           <Route path="/seat-selection" element={<SeatSelection />} />
           <Route path="/confirm-payment" element={<ConfirmPayment />} />
           <Route path="/booking-success" element={<BookingSuccess />} />
+          <Route path="/create-movie" element={<CreateMovie />} />
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
       </Suspense>

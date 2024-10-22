@@ -32,7 +32,7 @@ const BookingSuccess = () => {
             totalAmount: selectedTotalPrice,
             createdAt: new Date().toISOString(),
             cancelledAt: null,
-            user: 10001, // Assuming user is logged in
+            user: 10052, // Assuming user is logged in
             showtime: "" // Assuming showtime is created successfully
         };
 
