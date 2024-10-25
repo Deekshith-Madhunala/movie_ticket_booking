@@ -212,8 +212,23 @@ const genericService = {
             console.error('Error cancelling booking:', error);
             throw error; // Re-throw the error for handling in the calling code
         }
-    }
-    ,
+    },
+    
+    getTimeSlots: async () => {
+        
+        const url = `${API_URL}/api/timeSlots`;  // Make sure API_URL is valid and doesn't have '+/'
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching time slots data:', error);
+            throw error; // Re-throw the error for handling in the calling code
+        }
+    },
 };
 
 export default genericService;
