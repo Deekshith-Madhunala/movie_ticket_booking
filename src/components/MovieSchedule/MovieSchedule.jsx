@@ -25,36 +25,28 @@ const MovieSchedule = () => {
   const { movie } = location.state || {};
   const navigate = useNavigate();
 
-  const [selectedDate, setSelectedDate] = useState(''); // Initialize with empty string
+  const [selectedDate, setSelectedDate] = useState('');
   const [selectedTheater, setSelectedTheater] = useState('');
   const [selectedTheaterId, setSelectedTheaterId] = useState('');
   const [selectedSeat, setSelectedSeat] = useState({ type: '', time: '' });
   const [theaters, setTheaters] = useState([]);
-  const [timeSlots, setTimeSlots] = useState([]); // State for time slots
+  const [timeSlots, setTimeSlots] = useState([]);
 
-  // Generate dates for the next week
   const generateDates = () => {
     const today = new Date();
     return Array.from({ length: 7 }, (_, i) => {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      // Format the date as 'yyyy-mm-dd'
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`; // Return formatted date
+      return `${year}-${month}-${day}`;
     });
   };
   
-  const dates = generateDates(); // Generate dates here
+  const dates = generateDates();
 
   const handleBookTicket = () => {
-    // Debugging logs to check selected values
-    console.log("Selected Time:", selectedSeat.time);
-    console.log("Selected Seat Type:", selectedSeat.type);
-    console.log("Selected Theater:", selectedTheater);
-    console.log("Selected Theater Id:", selectedTheaterId);
-
     if (!selectedSeat.time || !selectedSeat.type) {
       alert('Please select a showtime and seat type.');
       return;
@@ -65,15 +57,15 @@ const MovieSchedule = () => {
         selectedDate,
         selectedTheater,
         selectedTheaterId,
-        selectedTime: selectedSeat.time, // Pass the selected time
-        selectedSeatType: selectedSeat.type, // Pass the selected seat type
+        selectedTime: selectedSeat.time,
+        selectedSeatType: selectedSeat.type,
       },
     });
   };
 
   const fetchTheaters = async () => {
     try {
-      const theaterData = await genericService.getTheaters(); // Make sure to implement this in genericService
+      const theaterData = await genericService.getTheaters();
       setTheaters(theaterData);
     } catch (error) {
       console.error('Failed to fetch theaters:', error);
@@ -81,15 +73,16 @@ const MovieSchedule = () => {
   };
 
   const fetchShowSchedules = async (date) => {
-    console.log("Fetching schedules" + date);
-    
     try {
       const schedules = await genericService.getShowShedulesByDate(date);
-      // For each schedule, fetch the corresponding time slots
-      const allTimeSlots = await Promise.all(schedules.map(async (schedule) => {
+      // Filter schedules to only include those with the matching movieId
+      const filteredSchedules = schedules.filter(schedule => schedule.movie === movie.movieId);
+
+      // For each filtered schedule, fetch the corresponding time slots
+      const allTimeSlots = await Promise.all(filteredSchedules.map(async (schedule) => {
         const timeSlotsData = await genericService.getTimeSlotsByShowtime(schedule.showtimeId);
         return timeSlotsData.map(slot => ({ timeSlotId: slot.timeSlotId, timeSlot: slot.timeSlot }));
-      }));
+      }));      
       // Flatten the array and update the timeSlots state
       setTimeSlots(allTimeSlots.flat());
     } catch (error) {
@@ -99,10 +92,10 @@ const MovieSchedule = () => {
 
   useEffect(() => {
     fetchTheaters();
-    const firstDate = dates[0]; // Get the first date
-    setSelectedDate(firstDate); // Set it as the selected date
-    fetchShowSchedules(firstDate); // Fetch schedules for the first date
-  }, []); // Run only once on component mount
+    const firstDate = dates[0];
+    setSelectedDate(firstDate);
+    fetchShowSchedules(firstDate);
+  }, []);
 
   return (
     <Box sx={{ backgroundColor: '#f9f9f9', minHeight: '100vh', p: 2 }}>
@@ -124,7 +117,7 @@ const MovieSchedule = () => {
                 variant={selectedDate === date ? 'contained' : 'outlined'}
                 onClick={() => {
                   setSelectedDate(date);
-                  fetchShowSchedules(date); // Fetch schedules when a date is selected
+                  fetchShowSchedules(date);
                 }}
                 sx={{
                   flex: '0 0 auto',
@@ -150,8 +143,8 @@ const MovieSchedule = () => {
                 variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
                 onClick={() => {
                   setSelectedTheater(theater.name);
-                  setSelectedTheaterId(theater.theaterId); // Store the selected theater ID for future use
-                  setSelectedSeat({ type: '', time: '' }); // Reset selected seat when changing theater
+                  setSelectedTheaterId(theater.theaterId);
+                  setSelectedSeat({ type: '', time: '' });
                 }}
                 sx={{
                   padding: 2,
@@ -170,7 +163,6 @@ const MovieSchedule = () => {
                   <Typography variant="body1">{theater.address}</Typography>
 
                   <Box sx={{ mt: 1, display: 'block', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    {/* Display dynamic time slots based on selection */}
                     {timeSlots.length > 0 ? (
                       <>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -181,10 +173,10 @@ const MovieSchedule = () => {
                             key={slot.timeSlotId}
                             variant={selectedTheater === theater.name && selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent the card click event
-                              setSelectedTheater(theater.name); // Automatically select the theater
-                              setSelectedTheaterId(theater.theaterId); // Store the selected theater ID for future use
-                              setSelectedSeat({ type: 'Regular', time: slot.timeSlot }); // Set selected seat type and time
+                              e.stopPropagation();
+                              setSelectedTheater(theater.name);
+                              setSelectedTheaterId(theater.theaterId);
+                              setSelectedSeat({ type: 'Regular', time: slot.timeSlot });
                             }}
                             sx={{
                               mr: 1,
@@ -214,16 +206,14 @@ const MovieSchedule = () => {
         <Grid item xs={12} md={3}>
           <Box sx={{ p: 2, borderRadius: 2 }}>
             {movie?.poster && (
-              <Card elevation={0} sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
-                <CardMedia
-                  component="img"
-                  image={movie.poster}
-                  alt={movie.title}
-                  alignItems="center"
-                  sx={{ borderRadius: 2 }}
-                />
-              </Card>
+              <CardMedia
+                component="img"
+                image={movie.poster}
+                alt={movie.title}
+                sx={{ height: 200, objectFit: 'contain', marginBottom: 2 }}
+              />
             )}
+            <Typography variant="h5">{movie?.title}</Typography>
             <Button variant="contained" onClick={handleBookTicket} sx={{ mt: 2 }}>
               Book Ticket
             </Button>
