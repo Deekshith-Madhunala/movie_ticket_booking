@@ -229,6 +229,37 @@ const genericService = {
             throw error; // Re-throw the error for handling in the calling code
         }
     },
+    getShowShedulesByDate: async (date) => {
+        const url = `${API_URL}/api/showtimes/date/showtimes?showDate=${date}`;  // Construct the API URL with the showDate query parameter
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching showtime data:', error);
+            throw error; // Re-throw the error for handling in the calling code
+        }
+    },
+
+    getTimeSlotsByShowtime: async (showtimeId) => {
+        const url = `${API_URL}/api/showtimes/${showtimeId}/timeSlots`;  // Adjusted to use 'timeSlots' and correct path
+    
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching time slots data:', error);
+            throw error; // Re-throw the error for handling in the calling code
+        }
+    },
+    
+    
 };
 
 export default genericService;

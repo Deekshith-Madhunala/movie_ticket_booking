@@ -7,7 +7,6 @@ import {
     InputLabel,
     Grid,
     Snackbar,
-    Typography,
     TextField,
     Card,
     CardContent,
@@ -22,9 +21,9 @@ function CreateMovie() {
     const [timeslots, setTimeslots] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState('');
     const [selectedTheater, setSelectedTheater] = useState('');
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+    const [selectedTimeSlots, setSelectedTimeSlots] = useState([]); // Changed to array for multiple values
     const [selectedDate, setSelectedDate] = useState('');
-    const [seatType, setSeatType] = useState('Regular'); // New state for seat type
+    const [seats, setSeat] = useState(''); // New state for seat type
     const [price, setPrice] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState(null);
@@ -56,15 +55,16 @@ function CreateMovie() {
         setSuccessMessage('');
 
         // Validate the input
-        if (selectedMovie && selectedTheater && selectedTimeSlot && selectedDate && price) {
+        if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedDate && price) {
             try {
                 // Create the showtime
                 const showtimeData = {
                     movie: selectedMovie, // Ensure this is movieId
                     theater: selectedTheater, // Ensure this is theaterId
                     showDate: selectedDate,
-                    showtimeTime: selectedTimeSlot,
+                    timeSlotIds: selectedTimeSlots, // Use an array of timeSlotIds
                     price: parseFloat(price),
+                    availableSeats: seats // Include seat type if needed
                 };
 
                 await genericService.createShowTimes(showtimeData);
@@ -99,7 +99,7 @@ function CreateMovie() {
                                         required
                                     >
                                         {movies.map((movie) => (
-                                            <MenuItem key={movie.movieId} value={movie.movieId}> {/* Use movieId here */}
+                                            <MenuItem key={movie.movieId} value={movie.movieId}>
                                                 {movie.title}
                                             </MenuItem>
                                         ))}
@@ -115,7 +115,7 @@ function CreateMovie() {
                                         required
                                     >
                                         {theaters.map((theater) => (
-                                            <MenuItem key={theater.theaterId} value={theater.theaterId}> {/* Use theaterId here */}
+                                            <MenuItem key={theater.theaterId} value={theater.theaterId}>
                                                 {theater.name}
                                             </MenuItem>
                                         ))}
@@ -137,30 +137,19 @@ function CreateMovie() {
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <FormControl fullWidth>
-                                    <InputLabel>Time Slot</InputLabel>
+                                    <InputLabel>Time Slots</InputLabel>
                                     <Select
-                                        value={selectedTimeSlot}
-                                        onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                                        multiple
+                                        value={selectedTimeSlots}
+                                        onChange={(e) => setSelectedTimeSlots(e.target.value)} // Set timeSlotIds
+                                        renderValue={(selected) => selected.map((id) => timeslots.find(t => t.timeSlotId === id).timeSlot).join(', ')} // Display selected timeslots
                                         required
                                     >
                                         {timeslots.map((time) => (
-                                            <MenuItem key={time.id} value={time.id}>
+                                            <MenuItem key={time.timeSlotId} value={time.timeSlotId}>
                                                 {time.timeSlot}
                                             </MenuItem>
                                         ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Seat Type</InputLabel>
-                                    <Select
-                                        value={seatType}
-                                        onChange={(e) => setSeatType(e.target.value)} // Update seat type
-                                        required
-                                    >
-                                        <MenuItem value="Regular">Regular</MenuItem>
-                                        <MenuItem value="Gold">Gold</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -171,6 +160,16 @@ function CreateMovie() {
                                     type="number"
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Seats"
+                                    type="number"
+                                    value={seats}
+                                    onChange={(e) => setSeat(e.target.value)}
                                     required
                                 />
                             </Grid>
