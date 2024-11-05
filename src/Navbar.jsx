@@ -12,14 +12,16 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from './auth/AuthContext';
 
 const pages = ['Home', 'My Tickets', 'News'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { user, logout } = useAuth(); // Use authentication context
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -36,8 +38,14 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    logout();
+    handleCloseUserMenu();
+    navigate('/login');
+  };
+
   return (
-    <AppBar position="static" color="transparent">
+    <AppBar position="static" color="transparent" class='Navbar'>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -45,14 +53,14 @@ function Navbar() {
             variant="h6"
             noWrap
             component={Link}
-            to="/" // Change the href to "to" for Link
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
-              color: '#000', // Black color for logo
+              color: '#000',
               textDecoration: 'none',
             }}
           >
@@ -93,7 +101,7 @@ function Navbar() {
                     textAlign="center"
                     component={Link}
                     to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
-                    sx={{ color: '#000' }} // Black color for menu items
+                    sx={{ color: '#000' }}
                   >
                     {page}
                   </Typography>
@@ -107,7 +115,7 @@ function Navbar() {
             variant="h5"
             noWrap
             component={Link}
-            to="/" 
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -115,33 +123,33 @@ function Navbar() {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
-              color: '#000', // Black color for logo
+              color: '#000',
               textDecoration: 'none',
             }}
           >
             LOGO
           </Typography>
 
-          {/* Move pages to the right */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: 2 }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                component={Link} // Use Link for navigation
-                to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`} // Dynamic navigation
-                sx={{ my: 2, color: '#000', display: 'block' }} // Black color for buttons
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
+          {/* Desktop menu items */}
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: 2 }}>
+              {pages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
+                  sx={{ my: 2, color: '#000', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              ))}
+            </Box>
 
           {/* User Avatar and Menu */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>  
+                <Avatar>{user?.name?.[0].toUpperCase() || 'U'}</Avatar>
               </IconButton>
             </Tooltip>
             <Menu
@@ -160,11 +168,12 @@ function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Typography textAlign="center">{user?.name}</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

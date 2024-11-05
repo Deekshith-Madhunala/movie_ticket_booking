@@ -6,14 +6,6 @@ import { Button, Card, TextField, Typography } from '@mui/material';
 import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
 const BackgroundBox = styled(Box)(({ theme }) => ({
   backgroundImage: 'url(https://media.istockphoto.com/id/1480674106/photo/3d-rendering-of-fingerprint-padlock-on-blue-background.webp?a=1&b=1&s=612x612&w=0&k=20&c=Fw8krT4yrlhmdIuEgda4FnCQQuqt8dzXDrHit-mhU9k=)',
   backgroundSize: 'cover',
@@ -24,13 +16,14 @@ const BackgroundBox = styled(Box)(({ theme }) => ({
   alignItems: 'center',
 }));
 
-function Login() {
-  const { login } = useAuth();
+function Register() {
+  const { register } = useAuth(); // Assume you have a register function in AuthContext
   const navigate = useNavigate();
 
-  // State to store email and password input
+  // State to store input values
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const validateEmail = (email) => {
@@ -42,7 +35,7 @@ function Login() {
     return password.length >= 6;
   };
 
-  const handleLogin = (event) => {
+  const handleRegister = (event) => {
     event.preventDefault();
     setError('');
 
@@ -57,21 +50,24 @@ function Login() {
       return;
     }
 
-    const mockUserData = {
-      name: email.substring(0, email.indexOf('@')),
-      email: email,
-    };
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
 
-    login(mockUserData);
-    navigate('/');
+    const name = email.substring(0, email.indexOf('@'));
+    // Call register function from Auth context
+    const newUser = { email, password, name };
+    register(newUser);
+    navigate('/'); // Redirect to home page or login page after registration
   };
 
   return (
     <BackgroundBox>
       <Card sx={{ padding: 4, maxWidth: 500 }}>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
           <Typography variant="h4" gutterBottom>
-            Login
+            Register
           </Typography>
           {error && (
             <Typography color="error" variant="body2" gutterBottom>
@@ -95,26 +91,21 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="text" color="primary">
-              Forgot Password?
-            </Button>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              variant="text" 
-              onClick={() => navigate('/register')} // Navigate to Register component
-            >
-              Don't have an account? Sign up
-            </Button>
-          </Box>
-
+          <TextField
+            variant="outlined"
+            label="Confirm Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
           <Button
             variant="contained"
             color="primary"
             type="submit"
           >
-            Login
+            Register
           </Button>
         </form>
       </Card>
@@ -122,4 +113,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
