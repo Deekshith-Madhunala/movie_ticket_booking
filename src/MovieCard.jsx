@@ -13,12 +13,13 @@ const MovieCard = ({ movie }) => {
     };
 
   return (
-    <Card onClick={handleClick} sx={{ maxWidth: 345, margin: 2, cursor: 'pointer' }}>
+    <Card onClick={handleClick} sx={{ maxWidth: 345, margin: 2, cursor: 'pointer', borderRadius: 8 }}>
       <CardMedia
         component="img"
-        height="auto"
+        height="500px"        
         image={movie.poster}
         alt={movie.title}
+        sx={{ borderRadius: 8 }}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">

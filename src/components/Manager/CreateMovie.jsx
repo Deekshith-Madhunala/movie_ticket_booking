@@ -22,7 +22,8 @@ function CreateMovie() {
     const [selectedMovie, setSelectedMovie] = useState('');
     const [selectedTheater, setSelectedTheater] = useState('');
     const [selectedTimeSlots, setSelectedTimeSlots] = useState([]); // Changed to array for multiple values
-    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedStartDate, setSelectedStartDate] = useState('');
+    const [selectedEndDate, setSelectedEndDate] = useState('');
     const [seats, setSeat] = useState(''); // New state for seat type
     const [price, setPrice] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -55,13 +56,15 @@ function CreateMovie() {
         setSuccessMessage('');
 
         // Validate the input
-        if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedDate && price) {
+        if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedStartDate && price) {
             try {
                 // Create the showtime
                 const showtimeData = {
                     movie: selectedMovie, // Ensure this is movieId
                     theater: selectedTheater, // Ensure this is theaterId
-                    showDate: selectedDate,
+                    // showDate: selectedDate,
+                    startDate: selectedStartDate,
+                    endDate: selectedEndDate,
                     timeSlotIds: selectedTimeSlots, // Use an array of timeSlotIds
                     price: parseFloat(price),
                     availableSeats: seats // Include seat type if needed
@@ -125,10 +128,23 @@ function CreateMovie() {
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    label="Date"
+                                    label="Start Date"
                                     type="date"
-                                    value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                    value={selectedStartDate}
+                                    onChange={(e) => setSelectedStartDate(e.target.value)}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="End Date"
+                                    type="date"
+                                    value={selectedEndDate}
+                                    onChange={(e) => setSelectedEndDate(e.target.value)}
                                     InputLabelProps={{
                                         shrink: true,
                                     }}

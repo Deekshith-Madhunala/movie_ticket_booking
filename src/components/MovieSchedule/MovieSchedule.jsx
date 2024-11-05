@@ -210,7 +210,7 @@ const MovieSchedule = () => {
                 component="img"
                 image={movie.poster}
                 alt={movie.title}
-                sx={{ height: 200, objectFit: 'contain', marginBottom: 2 }}
+                sx={{ height: '500px', objectFit: 'contain', marginBottom: 2 }}
               />
             )}
             <Typography variant="h5">{movie?.title}</Typography>
