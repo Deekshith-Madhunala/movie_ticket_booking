@@ -9,7 +9,7 @@ const MovieCard = ({ movie }) => {
 
   const handleClick = () => {
       // Navigate to the movie schedule page using the movie title as the identifier
-      navigate(`/movie-schedule/${movie.Title}`, { state: { movie } });
+      navigate(`/movie-schedule/${movie.title}`, { state: { movie } });
     };
 
   return (

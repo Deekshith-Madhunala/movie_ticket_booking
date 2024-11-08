@@ -2,12 +2,13 @@ import React from 'react';
 import { Typography, Card, CardContent, Button } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import genericService from '../../rest/GenericService';
+import { useAuth } from '../../auth/AuthContext';
 
 const BookingSuccess = () => {
     const location = useLocation();
     const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedTotalPrice } = location.state || {};
     const navigate = useNavigate();
-
+    const { user, logout } = useAuth(); // Use authentication context
 
     const handleBackToHome = async () => {
 
@@ -31,23 +32,19 @@ const BookingSuccess = () => {
             bookingStatus: "CONFIRMED",
             totalAmount: selectedTotalPrice,
             createdAt: new Date().toISOString(),
+            seatType: selectedSeatType,
             cancelledAt: null,
-            user: 10052, // Assuming user is logged in
-            showtime: "" // Assuming showtime is created successfully
+            user: user?.name, // Assuming user is logged in
+            showtime: selectedTime // Assuming showtime is created successfully
         };
 
 
 
-        console.log(showtimeData);  // Output the result for debugging
+        console.log(bookingData);  // Output the result for debugging
         // Call the createShowTimes API
         try {
-            const response = await genericService.createShowTimes(showtimeData);
-            if (response != null) {
-                bookingData.showtime = response;
-                const bookingResponse = await genericService.createBooking(bookingData);
-                console.log('Booking created successfullyyy:', bookingResponse);
-            }         
-            console.log('Booking created successfully:', response);
+            const bookingResponse = await genericService.createBooking(bookingData);
+            console.log('Booking created successfullyyy:', bookingResponse);
             alert('Booking created successfully!');
             // Navigate back to home or movie listing page after success
             navigate('/');

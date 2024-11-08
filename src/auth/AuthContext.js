@@ -1,25 +1,28 @@
-// src/auth/AuthContext.js
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Get user from local storage if it exists
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Save user data to local storage
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const register = (userData) => {
     console.log("Registering user:", userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Save user data to local storage
-    setUser(userData); // Update state to reflect the registered user
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user'); // Remove user data from local storage on logout
+    localStorage.removeItem('user');
   };
 
   return (

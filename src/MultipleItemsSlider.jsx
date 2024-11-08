@@ -47,7 +47,7 @@ const MultipleItemsSlider = () => {
 
     return (
         <React.Fragment>
-            <Container style={{ paddingTop: 20 }}>
+            <Container style={{ paddingTop: 50, minWidth: '1300px' }}>
                 <Slider {...settings}>
                     {movies.length > 0 ? (
                         movies.map((movie, index) => (
