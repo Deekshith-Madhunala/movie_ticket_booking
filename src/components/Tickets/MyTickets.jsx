@@ -9,10 +9,13 @@ import {
   Button,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useAuth } from '../../auth/AuthContext';
 
 function MyTickets() {
   const [bookings, setBookings] = React.useState([]);
-  const userId = '6716cb9746176256b6af106a'; // Replace with the actual user ID or retrieve it from context/state
+  const { user, logout } = useAuth();
+
+  const userId = user.id;
 
   useEffect(() => {
     fetchBookings(); // Fetch bookings on component mount
@@ -30,11 +33,11 @@ function MyTickets() {
 
   const handleCancelBooking = async (bookingId) => {
     console.log("Cancelling booking:", bookingId);
-    
+
     try {
       await genericService.cancelBooking(bookingId); // Call the API to cancel the booking
       console.log('Booking canceled:', bookingId);
-      
+
       // Remove the canceled booking from the state
       setBookings((prevBookings) =>
         prevBookings.filter((booking) => booking.bookingId !== bookingId)
@@ -43,8 +46,8 @@ function MyTickets() {
       console.error('Failed to cancel booking:', error.message);
     }
   };
-  
-  
+
+
 
   return (
     <Box sx={{ p: 2 }}>
@@ -91,7 +94,8 @@ function MyTickets() {
                   <strong>Seat Type:</strong> {booking.showtimeDetails.seatType}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                  <strong>Seats Selected:</strong> {booking.showtimeDetails.seatSelected.join(', ')}
+                  <strong>Seats Selected:</strong>
+                  {booking.seatSelected ? booking.seatSelected.join(', ') : 'No seats selected'}
                 </Typography>
                 <Typography variant="h6" sx={{ mt: 1, fontSize: '1rem' }}>
                   Total Amount: ${booking.totalAmount}

@@ -13,7 +13,7 @@ const Item = styled(Typography)(({ theme }) => ({
 const SeatSelection = () => {
     // Retrieve passed movie, theater, date, and time details using useLocation
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeatType, selectedTheaterId } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeatType, selectedTheaterId, selectedSchedule, price } = location.state || {};
 
     const navigate = useNavigate(); // Hook to navigate to another route
 
@@ -60,7 +60,9 @@ const SeatSelection = () => {
                 selectedTheater,
                 selectedSeats,
                 selectedSeatType,
-                selectedTheaterId
+                selectedTheaterId,
+                selectedSchedule,
+                price: price * selectedSeats.length
             },
         });
     };
@@ -115,7 +117,7 @@ const SeatSelection = () => {
                 <Item>
                     <Typography variant='h4'>Total Price:</Typography>
                     <Typography variant='h5'>
-                        ${selectedSeatType === 'Gold' ? (50 * selectedSeats.length) : (30 * selectedSeats.length)}
+                        ${selectedSeatType === 'Gold' ? (price * selectedSeats.length) : (price * selectedSeats.length)}
                     </Typography>
                 </Item>
                 <Item>

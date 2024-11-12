@@ -1,61 +1,15 @@
 import React from 'react';
 import { Typography, Card, CardContent, Button } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import genericService from '../../rest/GenericService';
-import { useAuth } from '../../auth/AuthContext';
 
 const BookingSuccess = () => {
     const location = useLocation();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedTotalPrice } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, price, selectedSchedule } = location.state || {};
     const navigate = useNavigate();
-    const { user, logout } = useAuth(); // Use authentication context
 
     const handleBackToHome = async () => {
-
-        console.log('Selected Date:', selectedDate);  // Debugging output
-        console.log('Selected Time:', selectedTime);  // Debugging output
-
-
-        // Generate the showtimeData
-        const showtimeData = {
-            showtimeTime: selectedTime,
-            showDate: new Date(selectedDate).toISOString(), // Convert to ISO string
-            seatSelected: selectedSeats,
-            seatType: selectedSeatType,
-            price: selectedTotalPrice,
-            movie: movie.movieId,
-            theater: selectedTheaterId,
-        };
-
-        const bookingData = {
-            paymentStatus: "DONE",
-            bookingStatus: "CONFIRMED",
-            totalAmount: selectedTotalPrice,
-            createdAt: new Date().toISOString(),
-            seatType: selectedSeatType,
-            cancelledAt: null,
-            user: user?.name, // Assuming user is logged in
-            showtime: selectedTime // Assuming showtime is created successfully
-        };
-
-
-
-        console.log(bookingData);  // Output the result for debugging
-        // Call the createShowTimes API
-        try {
-            const bookingResponse = await genericService.createBooking(bookingData);
-            console.log('Booking created successfullyyy:', bookingResponse);
-            alert('Booking created successfully!');
-            // Navigate back to home or movie listing page after success
-            navigate('/');
-        } catch (error) {
-            console.error('Error creating Booking:', error);
-            alert('Failed to create showtime. Please try again.');
-        }
-        // Navigate back to home or movie listing page
         navigate('/');
     };
-
 
     return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -81,7 +35,7 @@ const BookingSuccess = () => {
                         Seat type: {selectedSeatType}
                     </Typography>
                     <Typography variant="h6" gutterBottom>
-                        Amount: {selectedTotalPrice}
+                        Amount: {price}
                     </Typography>
                     <Typography variant="h6" color="green" gutterBottom>
                         Payment Status: Success

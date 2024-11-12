@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Radio, RadioGroup, FormControlLabel, TextField, Card, CardContent, CardActions } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
+import genericService from '../../rest/GenericService';
+
 
 const ConfirmPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId } = location.state || {};
+    const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedSchedule, price } = location.state || {};
+
+    const { user, logout } = useAuth(); // Use authentication context
 
     const [paymentMethod, setPaymentMethod] = useState('');
     const [selectedTotalPrice, setSelectedTotalPrice] = useState('');
@@ -35,15 +40,36 @@ const ConfirmPayment = () => {
     };
 
     // Function to navigate to BookingSuccess component
-    const navigateToSuccess = () => {
+    const navigateToSuccess =  async () => {
+
+        const bookingData = {
+            paymentStatus: "DONE",
+            bookingStatus: "CONFIRMED",
+            totalAmount: price,
+            createdAt: new Date().toISOString(),
+            seatType: selectedSeatType,
+            cancelledAt: null,
+            user: user?.userId,
+            showtime: selectedSchedule,
+            seatSelected: selectedSeats
+        };
+
+        console.log(bookingData);
+        try {
+            const bookingResponse = await genericService.createBooking(bookingData);
+            console.log('Booking created successfullyyy:', bookingResponse);
+            alert('Booking created successfully!');
+            // Navigate back to home or movie listing page after success
+            navigate('/');
+        } catch (error) {
+            console.error('Error creating Booking:', error);
+            alert('Failed to create showtime. Please try again.');
+        }
+
         navigate('/booking-success', {
-            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedTotalPrice}
+            state: { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, price, selectedSchedule}
         });
     };
-
-    useEffect(() => {
-        setSelectedTotalPrice(selectedSeatType === 'Gold'? (50 * selectedSeats.length) : (30 * selectedSeats.length));
-    }, []);
 
     return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -63,7 +89,7 @@ const ConfirmPayment = () => {
                         Seat type: {selectedSeatType}
                     </Typography>
                     <Typography variant="h6" gutterBottom>
-                        Total Price: {selectedTotalPrice}
+                        Total Price: {price}
                     </Typography>
                 </CardContent>
                 <CardActions>

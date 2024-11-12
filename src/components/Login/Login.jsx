@@ -5,6 +5,7 @@ import Paper from '@mui/material/Paper';
 import { Button, Card, TextField, Typography } from '@mui/material';
 import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import genericService from '../../rest/GenericService';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: '#fff',
@@ -42,7 +43,7 @@ function Login() {
     return password.length >= 6;
   };
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     setError('');
 
@@ -57,13 +58,15 @@ function Login() {
       return;
     }
 
-    const mockUserData = {
-      name: email.substring(0, email.indexOf('@')),
-      email: email,
-    };
-
-    login(mockUserData);
-    navigate('/');
+    try {
+      // Call the login API
+      const response = await genericService.login(email, password);
+      console.log('Login Response:', response);
+      login(response); // Call login function from AuthContext
+      navigate('/'); // Navigate to homepage after login
+    } catch (error) {
+      setError('Login failed. Please check your credentials and try again.');
+    }
   };
 
   return (

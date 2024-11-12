@@ -36,6 +36,8 @@ const MovieSchedule = () => {
   const [selectedSeat, setSelectedSeat] = useState({ type: '', time: '' });
   const [theaters, setTheaters] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [showtimes, setShowTimes] = useState('');
+  const [price, setPrice] = useState('');
 
   const generateDates = () => {
     const today = new Date();
@@ -61,6 +63,8 @@ const MovieSchedule = () => {
         selectedTheaterId,
         selectedTime: selectedSeat.time,
         selectedSeatType: selectedSeat.type,
+        selectedSchedule: showtimes,
+        price
       },
     });
   };
@@ -74,32 +78,94 @@ const MovieSchedule = () => {
     }
   };
 
+  const [schedulePrices, setSchedulePrices] = useState({});
+
   const fetchShowSchedules = async (date) => {
     try {
       const schedules = await genericService.getShowShedulesByDate(date);
       const filteredSchedules = schedules.filter(schedule => schedule.movie === movie.movieId);
 
-      const allTimeSlots = await Promise.all(filteredSchedules.map(async (schedule) => {
-        const timeSlotsData = await genericService.getTimeSlotsByShowtime(schedule.showtimeId);
-        return timeSlotsData.map(slot => ({ timeSlotId: slot.timeSlotId, timeSlot: slot.timeSlot }));
-      }));
-      setTimeSlots(allTimeSlots.flat());
+      // Extract unique theater IDs from filtered schedules
+      const theaterIdsInSchedule = new Set(filteredSchedules.map(schedule => schedule.theater));
+
+      // Filter theaters based on theater IDs present in schedules
+      const theaterData = await genericService.getTheaters();
+      const matchingTheaters = theaterData.filter(theater => theaterIdsInSchedule.has(theater.theaterId));
+      setTheaters(matchingTheaters);
+
+      // Initialize a map to store time slots specific to each theater
+      const timeSlotMap = {};
+
+      // Map to store prices for each showtime
+      const pricesMap = {};
+
+      // Fetch and organize time slots by theater
+      await Promise.all(
+        filteredSchedules.map(async (schedule) => {
+          const timeSlotsData = await genericService.getTimeSlotsByShowtime(schedule.showtimeId);
+
+          // Store the price for each showtime
+          pricesMap[schedule.theater] = schedule.price;
+
+          // Only include time slots for this specific theater
+          if (!timeSlotMap[schedule.theater]) {
+            timeSlotMap[schedule.theater] = [];
+          }
+
+          // Add the time slots for this specific showtime to the theater's time slots list
+          timeSlotMap[schedule.theater] = [
+            ...timeSlotMap[schedule.theater],
+            ...timeSlotsData.map(slot => ({
+              timeSlotId: slot.timeSlotId,
+              timeSlot: slot.timeSlot,
+              showtimeId: schedule.showtimeId,
+            }))
+          ];
+        })
+      );
+
+      setTimeSlots(timeSlotMap); // Set the time slots organized by theater ID
+
+      setSchedulePrices(pricesMap); // Set the prices by showtime ID
+
+
     } catch (error) {
       console.error('Failed to fetch show schedules:', error);
     }
   };
 
   useEffect(() => {
-    fetchTheaters();
-    const firstDate = dates[0];
-    setSelectedDate(firstDate);
-    fetchShowSchedules(firstDate);
+    if (selectedTheaterId) {
+      setPrice(schedulePrices[selectedTheaterId] || '');
+    }
+  }, [selectedTheaterId, schedulePrices]);
+  
+  useEffect(() => {
+    const initializeTheatersAndShowtimes = async () => {
+      await fetchTheaters();
+      const firstDate = dates[0];
+      setSelectedDate(firstDate);
+      await fetchShowSchedules(firstDate);
+
+    };
+    initializeTheatersAndShowtimes();
   }, []);
+
+  useEffect(() => {
+    // Set the first theater as selected by default if theaters are available
+    if (theaters.length > 0) {
+      const firstTheater = theaters[0];
+      setSelectedTheater(firstTheater.name);
+      setSelectedTheaterId(firstTheater.theaterId);
+      setSelectedSeat({ type: '', time: '' });
+    }
+  }, [theaters]); // Runs whenever theaters data changes
 
   const handleDateChange = (date) => {
     const formattedDate = dayjs(date).format('YYYY-MM-DD');
     setSelectedDate(formattedDate);
     fetchShowSchedules(formattedDate);
+    
   };
 
   return (
@@ -138,15 +204,15 @@ const MovieSchedule = () => {
                 </Card>
               ))}
               <DatePicker
-                value={dayjs(selectedDate)} 
+                value={dayjs(selectedDate)}
                 onChange={(newDate) => handleDateChange(newDate)}
                 renderInput={(params) => <TextField {...params} fullWidth
-                sx={{flex: '0 0 auto'}} 
+                  sx={{ flex: '0 0 auto' }}
                 />}
               />
             </Stack>
             <Typography variant="h3" textAlign={'initial'} marginBottom={'10px'}>
-              Select Theater and Show:
+              Select Theater and Show: :
             </Typography>
             <Stack spacing={2}>
               {theaters.map((theater) => (
@@ -156,7 +222,7 @@ const MovieSchedule = () => {
                   onClick={() => {
                     setSelectedTheater(theater.name);
                     setSelectedTheaterId(theater.theaterId);
-                    setSelectedSeat({ type: '', time: '' });
+                    setSelectedSeat({ type: '', time: '' });                    
                   }}
                   sx={{
                     padding: 2,
@@ -173,31 +239,31 @@ const MovieSchedule = () => {
                   <CardContent sx={{ textAlign: 'start' }}>
                     <Typography variant="h4">{theater.name}</Typography>
                     <Typography variant="body1">{theater.address}</Typography>
-
                     <Box sx={{ mt: 1, display: 'block', flexWrap: 'wrap', justifyContent: 'center' }}>
-                      {timeSlots.length > 0 ? (
+                      {timeSlots[selectedTheaterId] && timeSlots[selectedTheaterId].length > 0 ? (
                         <>
                           <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
                             Select Showtime:
                           </Typography>
-                          {timeSlots.map((slot) => (
+                          {timeSlots[selectedTheaterId].map((slot) => (
                             <Button
                               key={slot.timeSlotId}
-                              variant={selectedTheater === theater.name && selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
+                              variant={selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedTheater(theater.name);
                                 setSelectedTheaterId(theater.theaterId);
                                 setSelectedSeat({ type: 'Regular', time: slot.timeSlot });
+                                setShowTimes(slot.showtimeId);
                               }}
                               sx={{
                                 mr: 1,
                                 mb: 1,
                                 fontSize: '0.8rem',
-                                backgroundColor: selectedTheater === theater.name && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
-                                color: selectedTheater === theater.name && selectedSeat.time === slot.timeSlot ? 'white' : '#0D47A1',
+                                backgroundColor: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
+                                color: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? 'white' : '#0D47A1',
                                 '&:hover': {
-                                  backgroundColor: selectedTheater === theater.name && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
+                                  backgroundColor: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
                                 },
                               }}
                             >

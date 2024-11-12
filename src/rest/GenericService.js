@@ -258,8 +258,40 @@ const genericService = {
             throw error; // Re-throw the error for handling in the calling code
         }
     },
+
+    login: async (email, password) => {
+        const url = `${API_URL}/api/users/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        
+        const postOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
     
-    
-};
+        try {
+            const response = await fetch(url, postOptions);
+            if (!response.ok) {
+                throw new Error(`Login failed! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error logging in:', error);
+            throw error;
+        }
+    },    
+
+    register: async (username, password) => {
+        const url = `${API_URL}/api/users/register`;
+        const postOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        };    
+    },
+}
 
 export default genericService;
