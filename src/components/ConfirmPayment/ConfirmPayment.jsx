@@ -3,12 +3,15 @@ import { Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import genericService from '../../rest/GenericService';
+import { useSnackbar } from '../snackBar/SnackbarContext';
 
 
 const ConfirmPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { movie, selectedDate, selectedTime, selectedTheater, selectedSeats, selectedSeatType, selectedTheaterId, selectedSchedule, price } = location.state || {};
+
+    const showSnackbar = useSnackbar();
 
     const { user, logout } = useAuth(); // Use authentication context
 
@@ -58,12 +61,15 @@ const ConfirmPayment = () => {
         try {
             const bookingResponse = await genericService.createBooking(bookingData);
             console.log('Booking created successfullyyy:', bookingResponse);
-            alert('Booking created successfully!');
+            showSnackbar('Booking created successfully!', 'success');
+
             // Navigate back to home or movie listing page after success
             navigate('/');
         } catch (error) {
             console.error('Error creating Booking:', error);
             alert('Failed to create showtime. Please try again.');
+            showSnackbar('Failed to create showtime!', 'failure');
+
         }
 
         navigate('/booking-success', {
