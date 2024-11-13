@@ -10,6 +10,7 @@ import {
   CardMedia,
   TextField,
   Stack,
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
@@ -18,6 +19,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import Rating from '@mui/material/Rating';
 import genericService from '../../rest/GenericService';
 
 const Item = styled(Typography)(({ theme }) => ({
@@ -30,12 +32,14 @@ const MovieSchedule = () => {
   const { movie } = location.state || {};
   const navigate = useNavigate();
 
+  const [value, setValue] = React.useState(6.6);
+
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTheater, setSelectedTheater] = useState('');
   const [selectedTheaterId, setSelectedTheaterId] = useState('');
   const [selectedSeat, setSelectedSeat] = useState({ type: '', time: '' });
   const [theaters, setTheaters] = useState([]);
-  const [timeSlots, setTimeSlots] = useState([]);
+  const [timeSlots, setTimeSlots] = useState({});
   const [showtimes, setShowTimes] = useState('');
   const [price, setPrice] = useState('');
 
@@ -125,10 +129,7 @@ const MovieSchedule = () => {
       );
 
       setTimeSlots(timeSlotMap); // Set the time slots organized by theater ID
-
       setSchedulePrices(pricesMap); // Set the prices by showtime ID
-
-
     } catch (error) {
       console.error('Failed to fetch show schedules:', error);
     }
@@ -139,14 +140,13 @@ const MovieSchedule = () => {
       setPrice(schedulePrices[selectedTheaterId] || '');
     }
   }, [selectedTheaterId, schedulePrices]);
-  
+
   useEffect(() => {
     const initializeTheatersAndShowtimes = async () => {
       await fetchTheaters();
       const firstDate = dates[0];
       setSelectedDate(firstDate);
       await fetchShowSchedules(firstDate);
-
     };
     initializeTheatersAndShowtimes();
   }, []);
@@ -165,7 +165,6 @@ const MovieSchedule = () => {
     const formattedDate = dayjs(date).format('YYYY-MM-DD');
     setSelectedDate(formattedDate);
     fetchShowSchedules(formattedDate);
-    
   };
 
   return (
@@ -206,100 +205,139 @@ const MovieSchedule = () => {
               <DatePicker
                 value={dayjs(selectedDate)}
                 onChange={(newDate) => handleDateChange(newDate)}
-                renderInput={(params) => <TextField {...params} fullWidth
-                  sx={{ flex: '0 0 auto' }}
-                />}
+                renderInput={(params) => <TextField {...params} fullWidth sx={{ flex: '0 0 auto' }} />}
               />
             </Stack>
+
             <Typography variant="h3" textAlign={'initial'} marginBottom={'10px'}>
-              Select Theater and Show: :
+              Select Theater and Show time:
             </Typography>
-            <Stack spacing={2}>
-              {theaters.map((theater) => (
-                <Card
-                  key={theater.id}
-                  variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
-                  onClick={() => {
-                    setSelectedTheater(theater.name);
-                    setSelectedTheaterId(theater.theaterId);
-                    setSelectedSeat({ type: '', time: '' });                    
-                  }}
-                  sx={{
-                    padding: 2,
-                    borderRadius: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'start',
-                    width: 'auto',
-                    backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
-                    color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'start' }}>
-                    <Typography variant="h4">{theater.name}</Typography>
-                    <Typography variant="body1">{theater.address}</Typography>
-                    <Box sx={{ mt: 1, display: 'block', flexWrap: 'wrap', justifyContent: 'center' }}>
-                      {timeSlots[selectedTheaterId] && timeSlots[selectedTheaterId].length > 0 ? (
-                        <>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                            Select Showtime:
-                          </Typography>
-                          {timeSlots[selectedTheaterId].map((slot) => (
-                            <Button
-                              key={slot.timeSlotId}
-                              variant={selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTheater(theater.name);
-                                setSelectedTheaterId(theater.theaterId);
-                                setSelectedSeat({ type: 'Regular', time: slot.timeSlot });
-                                setShowTimes(slot.showtimeId);
-                              }}
-                              sx={{
-                                mr: 1,
-                                mb: 1,
-                                fontSize: '0.8rem',
-                                backgroundColor: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
-                                color: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? 'white' : '#0D47A1',
-                                '&:hover': {
-                                  backgroundColor: selectedTheaterId === theater.theaterId && selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'transparent',
-                                },
-                              }}
-                            >
-                              {slot.timeSlot}
-                            </Button>
-                          ))}
-                        </>
-                      ) : (
-                        <Typography variant="body2">No showtimes available for this date.</Typography>
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
+            <Stack direction="row" spacing={4} sx={{ display: 'flex' }}>
+              {/* Theaters Section */}
+              <Stack spacing={2} sx={{ flex: 1 }}>
+                {theaters.map((theater) => (
+                  <Card
+                    key={theater.id}
+                    variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      setSelectedTheater(theater.name);
+                      setSelectedTheaterId(theater.theaterId);
+                      setSelectedSeat({ type: '', time: '' });
+                    }}
+                    sx={{
+                      padding: 2,
+                      borderRadius: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'start',
+                      backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
+                      color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
+                    }}
+                  >
+                    <CardContent sx={{ textAlign: 'start', minHeight: '50px' }}>
+                      <Typography variant="h5">{theater.name}</Typography>
+                      <Typography variant="body1">{theater.address}</Typography>
+                      <br />
+                      <Typography>
+                        <Chip
+                          label="Chip Filled"
+                          sx={{
+                            backgroundColor: '#000000', // Custom background color
+                            color: '#ffffff', // Custom text color
+                          }}
+                        />
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+
+              {/* Showtimes Section */}
+              <Stack spacing={2} sx={{ flex: 1 }}>
+                {selectedTheaterId && timeSlots[selectedTheaterId] && (
+                  <>
+                    <Grid container spacing={2}>
+                      {timeSlots[selectedTheaterId].map((slot) => (
+                        <Grid item key={slot.timeSlotId}>
+                          <Button
+                            fullWidth
+                            size="large"
+                            variant={selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
+                            onClick={() => {
+                              setSelectedSeat({ type: 'Regular', time: slot.timeSlot })
+                              setShowTimes(slot.showtimeId);
+                            }} // Set a default type here
+                          >
+                            {slot.timeSlot}
+                          </Button>
+
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </>
+                )}
+              </Stack>
             </Stack>
           </Grid>
-
           <Grid item xs={12} md={3}>
-            <Box sx={{ p: 2, borderRadius: 2 }}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              {/* Poster Image */}
               {movie?.poster && (
                 <CardMedia
                   component="img"
                   image={movie.poster}
                   alt={movie.title}
-                  sx={{ height: '500px', objectFit: 'contain', marginBottom: 2 }}
+                  sx={{
+                    width: '100%',
+                    height: 450,
+                    objectFit: 'cover',
+                    borderRadius: 2,
+                    marginBottom: 2,
+                  }}
                 />
               )}
-              <Typography variant="h5">{movie?.title}</Typography>
-              <Button variant="contained" onClick={handleBookTicket} sx={{ mt: 2 }}>
+
+              {/* Movie Details */}
+              <Typography variant="h4" component="h2" gutterBottom>
+                {movie?.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                {movie?.description}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Genre: {movie?.genre}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Rating: {movie?.rating}
+              </Typography>
+              <Rating name="half-rating" value={value / 2} precision={0.5} readOnly size="large" />
+              <Typography variant="subtitle2" color="text.secondary">
+                Runtime: {movie?.duration} mins
+              </Typography>
+
+              {/* Book Ticket Button */}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBookTicket}
+                sx={{ mt: 2, width: '100%' }}
+              >
                 Book Ticket
               </Button>
             </Box>
           </Grid>
         </Grid>
       </Box>
-    </LocalizationProvider>
+    </LocalizationProvider >
   );
 };
 
