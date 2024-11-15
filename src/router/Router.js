@@ -1,14 +1,11 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from '../Navbar';
-import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register } from '../pages';
+import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register, BookingDetails } from '../pages';
 import ProtectedRoute from './ProtectedRoute';
-import { useAuth } from '../auth/AuthContext';
 import Footer from '../components/Footer/Footer';
 
 const AppRouter = () => {
-
-  const { user, logout } = useAuth(); // Use authentication context
 
   return (
     <Router>
@@ -28,6 +25,7 @@ const AppRouter = () => {
             <Route path="/confirm-payment" element={<ConfirmPayment />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/create-movie" element={<CreateMovie />} />
+            <Route path="/booking-details/:movieId" element={<BookingDetails />} />
           </Route>
 
           <Route path="*" element={<div>404 - Not Found</div>} />

@@ -35,8 +35,8 @@ const Footer = () => {
 
                 {/* Links Section */}
                 <Grid item xs={12} md={8} container spacing={4}>
-                    <Grid item xs={6} sm={3}>
-                        <Typography variant="subtitle2" fontWeight="bold">Product</Typography>
+                    <Grid item xs={6} sm={3} textAlign={'start'}>
+                        <Typography variant="subtitle2" fontWeight="bold" >Product</Typography>
                         <Box  gap={2} alignItems="start">
                             <Link href="#" color="text.secondary" underline="hover">Features</Link>
                             <br />
@@ -48,7 +48,7 @@ const Footer = () => {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={3} textAlign={'start'}>
                         <Typography variant="subtitle2" fontWeight="bold">Company</Typography>
                         <Box>
                             <Link href="#" color="text.secondary" underline="hover">Privacy</Link>
@@ -57,7 +57,7 @@ const Footer = () => {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={3} textAlign={'start'}>
                         <Typography variant="subtitle2" fontWeight="bold">Developers</Typography>
                         <Box>
                             <Link href="#" color="text.secondary" underline="hover">Public API</Link>
@@ -68,9 +68,9 @@ const Footer = () => {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={3} textAlign={'start'}>
                         <Typography variant="subtitle2" fontWeight="bold">Social Media</Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 0 }}>
                             <IconButton color="primary" href="#" aria-label="Facebook">
                                 <Facebook />
                             </IconButton>

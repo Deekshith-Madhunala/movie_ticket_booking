@@ -1,7 +1,5 @@
 import React from 'react'
 import MultipleItemsSlider from '../../MultipleItemsSlider'
-import SimpleSlider from '../../SimpleSlider'
-import NewsCards from '../../NewsCards'
 
 function Home() {
   return (

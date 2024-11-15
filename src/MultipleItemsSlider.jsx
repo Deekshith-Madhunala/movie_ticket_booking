@@ -49,7 +49,6 @@ const MultipleItemsSlider = () => {
         slidesToScroll: 1,
         className: "center",
         centerMode: true,
-        infinite: true,
         centerPadding: "60px",
     };
     const settings2 = {

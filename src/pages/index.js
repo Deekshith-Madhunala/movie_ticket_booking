@@ -10,5 +10,5 @@ const ConfirmPayment = React.lazy(() => import('../components/ConfirmPayment/Con
 const BookingSuccess = React.lazy(() => import('../components/BookingSuccess/BookingSuccess'));
 const CreateMovie = React.lazy(() => import('../components/Manager/CreateMovie'));
 const Register = React.lazy(() => import('../components/Register/Register'));
-
-export { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register };
+const BookingDetails = React.lazy(() => import('../components/BookingDetails/BookingDetails'));
+export { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register, BookingDetails };

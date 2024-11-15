@@ -169,19 +169,65 @@ const MovieSchedule = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ backgroundColor: '#f9f9f9', minHeight: '100vh', p: 2 }}>
-        <AppBar position="static" sx={{ mb: 4 }}>
-          <Toolbar>
-            <Typography variant="h6">ShowTimes</Typography>
-          </Toolbar>
-        </AppBar>
 
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={9}>
-            <Typography variant="h3" textAlign={'initial'} marginBottom={'10px'}>
-              Select the cinema date you want to watch:
+      <Typography variant="h3" textAlign={'initial'} sx={{ mt: 4, ml: 8 }}>
+        Select Theater and Showtime:
+      </Typography>
+      <Grid container spacing={2} sx={{ mt: 3 }}>
+        {/* Poster Section (4 Ratio) */}
+        <Grid item xs={12} md={2} justifyItems={'center'}>
+          <CardMedia
+            component="img"
+            image={movie.poster}
+            alt={movie.title}
+            sx={{
+              width: "50%", // Adjust the width of the poster
+              height: "100%", // Maintain aspect ratio
+              maxHeight: "250px", // Restrict the height
+              borderRadius: 2,
+              objectFit: "cover",
+            }}
+          />
+        </Grid>
+
+        {/* Movie Details Section (6 Ratio) */}
+        <Grid item xs={12} md={8}>
+          <Box sx={{ borderRadius: 2, justifyItems: 'start' }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+              {movie.title}
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ overflowX: 'auto', mb: 2 }}>
+            <Box justifyItems={'start'} display={'flex'} gap={1} mb={2}>
+              <Rating size="small" name="half-rating" value={value / 2} precision={0.5} readOnly />
+              <Typography variant="subtitle2" color="text.secondary">
+                {movie?.rating}/10
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                {new Date(movie.releaseDate).getFullYear()}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                {movie.duration} min
+              </Typography>
+            </Box>
+            <Typography variant="body1" sx={{ marginBottom: 2, textAlign: 'start' }}>
+              {movie.description}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: 1 }}>
+              Genre: <span style={{ fontWeight: "normal" }}>{movie.genre}</span>
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
+
+
+
+      <Box sx={{ minHeight: '100vh', p: 2, ml: 6, mt: 4 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} >
+            <Typography variant="subtitle1" sx={{ marginBottom: 2, textAlign: 'start' }}>
+              <Typography variant="h5">Select a Date:</Typography>
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ overflowX: 'auto', mb: 4 }}>
+              {/* Dates Section */}
               {dates.map((date, index) => (
                 <Card
                   key={index}
@@ -209,131 +255,77 @@ const MovieSchedule = () => {
               />
             </Stack>
 
-            <Typography variant="h3" textAlign={'initial'} marginBottom={'10px'}>
-              Select Theater and Show time:
+            {/* Theater section */}
+            <Typography variant="subtitle1" sx={{ marginBottom: 2, textAlign: 'start' }}>
+              <Typography variant="h5">Choose a Theater:</Typography>
             </Typography>
-            <Stack direction="row" spacing={4} sx={{ display: 'flex' }}>
-              {/* Theaters Section */}
-              <Stack spacing={2} sx={{ flex: 1 }}>
-                {theaters.map((theater) => (
-                  <Card
-                    key={theater.id}
-                    variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
-                    onClick={() => {
-                      setSelectedTheater(theater.name);
-                      setSelectedTheaterId(theater.theaterId);
-                      setSelectedSeat({ type: '', time: '' });
-                    }}
-                    sx={{
-                      padding: 2,
-                      borderRadius: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'start',
-                      backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
-                      color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
-                    }}
-                  >
-                    <CardContent sx={{ textAlign: 'start', minHeight: '50px' }}>
-                      <Typography variant="h5">{theater.name}</Typography>
-                      <Typography variant="body1">{theater.address}</Typography>
-                      <br />
-                      <Typography>
-                        <Chip
-                          label="Chip Filled"
-                          sx={{
-                            backgroundColor: '#000000', // Custom background color
-                            color: '#ffffff', // Custom text color
-                          }}
-                        />
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))}
-              </Stack>
-
-              {/* Showtimes Section */}
-              <Stack spacing={2} sx={{ flex: 1 }}>
-                {selectedTheaterId && timeSlots[selectedTheaterId] && (
-                  <>
-                    <Grid container spacing={2}>
-                      {timeSlots[selectedTheaterId].map((slot) => (
-                        <Grid item key={slot.timeSlotId}>
-                          <Button
-                            fullWidth
-                            size="large"
-                            variant={selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
-                            onClick={() => {
-                              setSelectedSeat({ type: 'Regular', time: slot.timeSlot })
-                              setShowTimes(slot.showtimeId);
-                            }} // Set a default type here
-                          >
-                            {slot.timeSlot}
-                          </Button>
-
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </>
-                )}
-              </Stack>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              {/* Poster Image */}
-              {movie?.poster && (
-                <CardMedia
-                  component="img"
-                  image={movie.poster}
-                  alt={movie.title}
-                  sx={{
-                    width: '100%',
-                    height: 450,
-                    objectFit: 'cover',
-                    borderRadius: 2,
-                    marginBottom: 2,
+            <Stack direction="row" spacing={4} flexWrap="wrap" justifyContent="flex-start" mb={4}>
+              {theaters.map((theater) => (
+                <Card
+                  key={theater.id}
+                  variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
+                  onClick={() => {
+                    setSelectedTheater(theater.name);
+                    setSelectedTheaterId(theater.theaterId);
+                    setSelectedSeat({ type: '', time: '' });
                   }}
-                />
+                  sx={{
+                    padding: 2,
+                    borderRadius: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                    backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
+                    color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
+                    width: 350,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'start', minHeight: '50px' }}>
+                    <Typography variant="h5">{theater.name}</Typography>
+                    <Typography variant="body1">{theater.address}</Typography>
+                    <br />
+                    <Typography>
+                      <Chip
+                        label="Chip Filled"
+                        sx={{
+                          backgroundColor: '#000000', // Custom background color
+                          color: '#ffffff', // Custom text color
+                        }}
+                      />
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Stack>
+            <Typography variant="subtitle1" sx={{ marginBottom: 2, textAlign: 'start' }}>
+              <Typography variant="h5">Choose a Showtime:</Typography>
+            </Typography>
+            {/* Showtimes Section */}
+            <Stack spacing={2}>
+              {selectedTheaterId && timeSlots[selectedTheaterId] && (
+                <>
+                  <Grid container spacing={2}>
+                    {timeSlots[selectedTheaterId].map((slot) => (
+                      <Grid item key={slot.timeSlotId}>
+                        <Button
+                          fullWidth
+                          size="large"
+                          variant={selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
+                          onClick={() => {
+                            setSelectedSeat({ type: 'Regular', time: slot.timeSlot })
+                            setShowTimes(slot.showtimeId);
+                          }} // Set a default type here
+                        >
+                          {slot.timeSlot}
+                        </Button>
+
+                      </Grid>
+                    ))}
+                  </Grid>
+                </>
               )}
-
-              {/* Movie Details */}
-              <Typography variant="h4" component="h2" gutterBottom>
-                {movie?.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                {movie?.description}
-              </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
-                Genre: {movie?.genre}
-              </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
-                Rating: {movie?.rating}
-              </Typography>
-              <Rating name="half-rating" value={value / 2} precision={0.5} readOnly size="large" />
-              <Typography variant="subtitle2" color="text.secondary">
-                Runtime: {movie?.duration} mins
-              </Typography>
-
-              {/* Book Ticket Button */}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleBookTicket}
-                sx={{ mt: 2, width: '100%' }}
-              >
-                Book Ticket
-              </Button>
-            </Box>
+            </Stack>
           </Grid>
         </Grid>
       </Box>
