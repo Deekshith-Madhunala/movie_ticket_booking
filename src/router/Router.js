@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from '../Navbar'; 
+import Navbar from '../Navbar';
 import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register } from '../pages';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuth } from '../auth/AuthContext';
+import Footer from '../components/Footer/Footer';
 
 const AppRouter = () => {
 
@@ -11,7 +12,7 @@ const AppRouter = () => {
 
   return (
     <Router>
-      {user && <Navbar />}
+      <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -32,6 +33,7 @@ const AppRouter = () => {
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
       </Suspense>
+      <Footer />
     </Router>
   );
 };

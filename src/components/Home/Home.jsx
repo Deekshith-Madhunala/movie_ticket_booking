@@ -7,8 +7,8 @@ function Home() {
   return (
     <div>
         <MultipleItemsSlider/>
-        <SimpleSlider/>
-        <NewsCards/>
+        {/* <SimpleSlider/>
+        <NewsCards/> */}
     </div>
   )
 }

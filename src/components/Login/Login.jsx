@@ -29,7 +29,6 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // State to store email and password input
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -47,7 +46,6 @@ function Login() {
     event.preventDefault();
     setError('');
 
-    // Validate email and password
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
       return;
@@ -59,11 +57,16 @@ function Login() {
     }
 
     try {
-      // Call the login API
       const response = await genericService.login(email, password);
-      console.log('Login Response:', response);
-      login(response); // Call login function from AuthContext
-      navigate('/'); // Navigate to homepage after login
+      const { role } = response; // Assuming role is part of the response
+      login(response); 
+
+      // Redirect based on role
+      if (role === 'ADMIN' || role === 'manager') {
+        navigate('/create-movie');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
     }
@@ -106,7 +109,7 @@ function Login() {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button 
               variant="text" 
-              onClick={() => navigate('/register')} // Navigate to Register component
+              onClick={() => navigate('/register')}
             >
               Don't have an account? Sign up
             </Button>
