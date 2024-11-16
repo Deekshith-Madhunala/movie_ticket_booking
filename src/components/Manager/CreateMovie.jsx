@@ -11,8 +11,11 @@ import {
     Card,
     CardContent,
     CardHeader,
+    Box,
+    Container,
 } from '@mui/material';
 import genericService from '../../rest/GenericService';
+import { useSnackbar } from '../snackBar/SnackbarContext';
 
 function CreateMovie() {
     // States for form inputs
@@ -29,6 +32,10 @@ function CreateMovie() {
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState(null);
 
+    const [movieName, setMovieName] = useState('');
+    const [year, setYear] = useState('');
+    const showSnackbar = useSnackbar();
+
     // Fetch movies, theaters, and timeslots on component mount
     useEffect(() => {
         const fetchData = async () => {
@@ -42,6 +49,8 @@ function CreateMovie() {
                 setTimeslots(timeSlotsData); // Set the timeslots state
             } catch (error) {
                 console.error('Error fetching data:', error);
+                showSnackbar('Failed to fetch movies, theaters, or timeslots.', 'failure');
+
                 setError('Failed to fetch movies, theaters, or timeslots.');
             }
         };
@@ -49,6 +58,24 @@ function CreateMovie() {
         fetchData();
     }, []);
 
+    const handleCreateMovie = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setSuccessMessage('');
+
+        try {
+            await genericService.createMovie(movieName, parseInt(year, 10));
+
+            // setSuccessMessage('Movie created successfully!');
+            showSnackbar('Movie created successfully!', 'success');
+
+            setMovieName('');
+            setYear('');
+        } catch (error) {
+            console.error('Error creating movie:', error);
+            setError(error.message || 'An error occurred while creating the movie.');
+        }
+    };
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -71,9 +98,11 @@ function CreateMovie() {
                 };
 
                 await genericService.createShowTimes(showtimeData);
-                
+
                 // Show success message
-                setSuccessMessage(`Showtime for the movie created successfully!`);
+                // setSuccessMessage(`Showtime for the movie created successfully!`);
+                showSnackbar('Showtime created successfully!', 'success');
+
 
                 // Show alert with showtime data in JSON format
                 alert(JSON.stringify(showtimeData, null, 2));
@@ -87,133 +116,183 @@ function CreateMovie() {
     };
 
     return (
-        <div>
-            <Card variant="outlined" sx={{ maxWidth: 600, margin: 'auto', marginTop: 4 }}>
-                <CardHeader title="Create Showtime" subheader="Fill in the details below" />
-                <CardContent>
-                    <form onSubmit={handleSubmit}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Movie</InputLabel>
-                                    <Select
-                                        value={selectedMovie}
-                                        onChange={(e) => setSelectedMovie(e.target.value)} // Set movieId
+        <Box sx={{ background: '#f5f5f5' }}>
+            <Container sx={{ display: 'flex', gap: 2, padding: 4 }}>
+                <Card variant="outlined" sx={{ maxWidth: "600px" }}>
+                    <CardHeader title="Create Showtime" subheader="Fill in the details below" />
+                    <CardContent>
+                        <form onSubmit={handleSubmit}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel>Movie</InputLabel>
+                                        <Select
+                                            value={selectedMovie}
+                                            onChange={(e) => setSelectedMovie(e.target.value)} // Set movieId
+                                            required
+                                        >
+                                            {movies.map((movie) => (
+                                                <MenuItem key={movie.movieId} value={movie.movieId}>
+                                                    {movie.title}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel>Theater</InputLabel>
+                                        <Select
+                                            value={selectedTheater}
+                                            onChange={(e) => setSelectedTheater(e.target.value)} // Set theaterId
+                                            required
+                                        >
+                                            {theaters.map((theater) => (
+                                                <MenuItem key={theater.theaterId} value={theater.theaterId}>
+                                                    {theater.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Start Date"
+                                        type="date"
+                                        value={selectedStartDate}
+                                        onChange={(e) => setSelectedStartDate(e.target.value)}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
                                         required
-                                    >
-                                        {movies.map((movie) => (
-                                            <MenuItem key={movie.movieId} value={movie.movieId}>
-                                                {movie.title}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Theater</InputLabel>
-                                    <Select
-                                        value={selectedTheater}
-                                        onChange={(e) => setSelectedTheater(e.target.value)} // Set theaterId
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="End Date"
+                                        type="date"
+                                        value={selectedEndDate}
+                                        onChange={(e) => setSelectedEndDate(e.target.value)}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
                                         required
-                                    >
-                                        {theaters.map((theater) => (
-                                            <MenuItem key={theater.theaterId} value={theater.theaterId}>
-                                                {theater.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Start Date"
-                                    type="date"
-                                    value={selectedStartDate}
-                                    onChange={(e) => setSelectedStartDate(e.target.value)}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="End Date"
-                                    type="date"
-                                    value={selectedEndDate}
-                                    onChange={(e) => setSelectedEndDate(e.target.value)}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Time Slots</InputLabel>
-                                    <Select
-                                        multiple
-                                        value={selectedTimeSlots}
-                                        onChange={(e) => setSelectedTimeSlots(e.target.value)} // Set timeSlotIds
-                                        renderValue={(selected) => selected.map((id) => timeslots.find(t => t.timeSlotId === id).timeSlot).join(', ')} // Display selected timeslots
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel>Time Slots</InputLabel>
+                                        <Select
+                                            multiple
+                                            value={selectedTimeSlots}
+                                            onChange={(e) => setSelectedTimeSlots(e.target.value)} // Set timeSlotIds
+                                            renderValue={(selected) => selected.map((id) => timeslots.find(t => t.timeSlotId === id).timeSlot).join(', ')} // Display selected timeslots
+                                            required
+                                        >
+                                            {timeslots.map((time) => (
+                                                <MenuItem key={time.timeSlotId} value={time.timeSlotId}>
+                                                    {time.timeSlot}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Price"
+                                        type="number"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
                                         required
-                                    >
-                                        {timeslots.map((time) => (
-                                            <MenuItem key={time.timeSlotId} value={time.timeSlotId}>
-                                                {time.timeSlot}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Seats"
+                                        type="number"
+                                        value={seats}
+                                        onChange={(e) => setSeat(e.target.value)}
+                                        required
+                                    />
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Price"
-                                    type="number"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Seats"
-                                    type="number"
-                                    value={seats}
-                                    onChange={(e) => setSeat(e.target.value)}
-                                    required
-                                />
-                            </Grid>
-                        </Grid>
-                        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                            Add Showtime
-                        </Button>
-                    </form>
+                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+                                Add Showtime
+                            </Button>
+                        </form>
 
-                    {error && (
-                        <Snackbar
-                            open={true}
-                            message={error}
-                            autoHideDuration={6000}
-                            onClose={() => setError(null)}
-                        />
-                    )}
-                    {successMessage && (
-                        <Snackbar
-                            open={true}
-                            message={successMessage}
-                            autoHideDuration={6000}
-                            onClose={() => setSuccessMessage('')}
-                        />
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                        {error && (
+                            <Snackbar
+                                open={true}
+                                message={error}
+                                autoHideDuration={6000}
+                                onClose={() => setError(null)}
+                            />
+                        )}
+                        {successMessage && (
+                            <Snackbar
+                                open={true}
+                                message={successMessage}
+                                autoHideDuration={6000}
+                                onClose={() => setSuccessMessage('')}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+                <Card variant="outlined" sx={{ maxWidth: '600px', margin: 'auto' }}>
+                    <CardHeader title="Add Movie" subheader="Fill in the details below" />
+                    <CardContent>
+                        <form onSubmit={handleCreateMovie}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Movie Name"
+                                        variant="outlined"
+                                        value={movieName}
+                                        onChange={(e) => setMovieName(e.target.value)}
+                                        required
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Year"
+                                        type="number"
+                                        variant="outlined"
+                                        value={year}
+                                        onChange={(e) => setYear(e.target.value)}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+                                Create Movie
+                            </Button>
+                        </form>
+                        {error && (
+                            <Snackbar
+                                open={true}
+                                message={error}
+                                autoHideDuration={6000}
+                                onClose={() => setError(null)}
+                            />
+                        )}
+                        {successMessage && (
+                            <Snackbar
+                                open={true}
+                                message={successMessage}
+                                autoHideDuration={6000}
+                                onClose={() => setSuccessMessage('')}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+            </Container>
+        </Box>
     );
 }
 

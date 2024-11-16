@@ -32,6 +32,8 @@ const specialOffersData = [
 
 const MultipleItemsSlider = () => {
     const [movies, setMovies] = useState([]); // State to hold movie data
+    const [upcomingMovies, setUpcomingMovies] = useState([]); // State to hold movie data
+
 
     const settings = {
         dots: false,
@@ -62,7 +64,9 @@ const MultipleItemsSlider = () => {
     const fetchMovie = async () => {
         try {
             const movieData = await genericService.getMovies();
+            const upcomingMovieData = await genericService.fetchUpcomingMovies();
             setMovies(movieData);
+            setUpcomingMovies(upcomingMovieData);
         } catch (error) {
             console.error('Failed to fetch movie data:', error);
         }
@@ -106,7 +110,7 @@ const MultipleItemsSlider = () => {
                 </Typography>
                 <Slider {...settings}>
                     {movies.length > 0 ? (
-                        movies.map((movie, index) => (
+                        movies.sort(() => Math.random() - 0.5).map((movie, index) => (
                             <div key={index}>
                                 <MovieCard movie={movie} />
                             </div>
@@ -136,14 +140,14 @@ const MultipleItemsSlider = () => {
                         Coming Soon
                     </Typography>
                     <Slider {...settings2}>
-                        {movies.length > 0 ? (
-                            movies.map((movie, index) => (
+                        {upcomingMovies && upcomingMovies.results && upcomingMovies.results.length > 0 ? (
+                            upcomingMovies.results.sort(() => Math.random() - 0.5).map((movie, index) => (
                                 <div key={index} style={{ margin: '5px' }}> {/* Reduced margin */}
                                     <Card sx={{ ml: 2, width: 180, height: 200, borderRadius: 2, overflow: 'hidden' }}> {/* Reduced size */}
                                         <CardMedia
                                             component="img"
-                                            image={movie.poster}
-                                            alt={movie.title}
+                                            image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} // Map poster_path
+                                            alt={movie.title} // Map title
                                             sx={{
                                                 height: '100%',
                                                 width: '100%',
@@ -157,11 +161,12 @@ const MultipleItemsSlider = () => {
                             <div>No movies found.</div>
                         )}
                     </Slider>
+
                 </Box>
 
                 {/* special offers */}
                 <Box>
-                    <Typography variant="h4" sx={{ textAlign: 'start', m: 2, mt:4}} fontWeight={400}>
+                    <Typography variant="h4" sx={{ textAlign: 'start', m: 2, mt: 4 }} fontWeight={400}>
                         Special Offers
                     </Typography>
                     <Grid container spacing={2}>

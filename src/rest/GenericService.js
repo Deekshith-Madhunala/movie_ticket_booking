@@ -2,6 +2,12 @@ const OMDB_API_URL = 'https://www.omdbapi.com';
 const API_URL = 'http://localhost:8080';
 const API_KEY = 'd2f679ea';
 
+
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_BEARER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMTBhZTU1ZTE3ZmEyMGJiMTc5ZTc0YTU5MGM0OTYzMCIsIm5iZiI6MTczMTcyNTYxNS4xMTQzMTY1LCJzdWIiOiI2NmRjYjQ5MTVjMDdjOGIxNzVlYzU2MTUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.OUHNsuB8-V-yYxrSvn45Etyb5m-3aOKHi6A_8h70hx8";
+
+// https://image.tmdb.org/t/p/w500/jCjXP26jkeV0TCMqkSvJTDKCDNk.jpg
+
 const genericService = {
     // Method to get movie details based on title and year
     getMovie: async (title, year) => {
@@ -58,17 +64,43 @@ const genericService = {
         }
     },
 
+    
+    fetchUpcomingMovies:  async (language = "en-US", page = 1, region = "US") => {
+        const url = `${TMDB_BASE_URL}/movie/upcoming?language=${language}&page=${page}&region=${region}`;
+        console.log("Fetching from URL:", url);
+    
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${TMDB_BEARER_TOKEN}`,
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Error fetching upcoming movies data:", error);
+            throw error;
+        }
+    },
+
     createMovie: async (title, year) => {
         try {
             // Call getMovie to fetch movie data from OMDb
             const movieData = await genericService.getMovie(title, year); // Wait for the movie data
             console.log('Fetched Movie Data:', movieData);
-    
+
             // Check if movieData is valid (ensure the movie exists in OMDb)
             if (!movieData || movieData.Response === 'False') {
                 throw new Error(`Movie not found: ${movieData.Error || 'Unknown error'}`);
             }
-    
+
             // Map the OMDb fields to your backend model
             const mappedMovieData = {
                 title: movieData.Title,
@@ -79,7 +111,7 @@ const genericService = {
                 releaseDate: new Date(movieData.Released).toISOString().split('T')[0],  // Format release date as YYYY-MM-DD
                 rating: parseFloat(movieData.imdbRating), // Convert IMDb rating to a decimal
             };
-    
+
             const postUrl = `${API_URL}/api/movies`;  // Local API endpoint to post the movie data
             const postOptions = {
                 method: 'POST',
@@ -88,20 +120,20 @@ const genericService = {
                 },
                 body: JSON.stringify(mappedMovieData), // Send the mapped movie data
             };
-    
+
             // Post the movie data to the backend
             const postResponse = await fetch(postUrl, postOptions);
             if (!postResponse.ok) {
                 throw new Error(`HTTP error! Status: ${postResponse.status}`);
             }
-    
+
             return await postResponse.json(); // Return the created movie data
         } catch (error) {
             console.error('Error creating movie data:', error);
             throw error; // Re-throw the error for handling in the calling code
         }
     },
-    
+
     createBooking: async (bookingData) => {
         const postUrl = `${API_URL}/api/bookings`;  // Local API endpoint to post the booking data
         const postOptions = {
@@ -196,16 +228,16 @@ const genericService = {
         const url = `${API_URL}/api/bookings/${bookingId}`; // Construct the API URL with booking ID
         const deleteOptions = {
             method: 'DELETE',
-        };   
+        };
         try {
             const deleteResponse = await fetch(url, deleteOptions);
-            
+
             // Check if the response status is OK
             if (!deleteResponse.ok) {
                 const errorText = await deleteResponse.text(); // Get the error message
                 throw new Error(`HTTP error! Status: ${deleteResponse.status} - ${errorText}`);
             }
-    
+
             // If no response body is returned, just return an empty object
             return {}; // Return an empty object or any success message you prefer
         } catch (error) {
@@ -213,9 +245,9 @@ const genericService = {
             throw error; // Re-throw the error for handling in the calling code
         }
     },
-    
+
     getTimeSlots: async () => {
-        
+
         const url = `${API_URL}/api/timeSlots`;  // Make sure API_URL is valid and doesn't have '+/'
 
         try {
@@ -246,7 +278,7 @@ const genericService = {
 
     getTimeSlotsByShowtime: async (showtimeId) => {
         const url = `${API_URL}/api/showtimes/${showtimeId}/timeSlots`;  // Adjusted to use 'timeSlots' and correct path
-    
+
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -261,14 +293,14 @@ const genericService = {
 
     login: async (email, password) => {
         const url = `${API_URL}/api/users/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-        
+
         const postOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
         };
-    
+
         try {
             const response = await fetch(url, postOptions);
             if (!response.ok) {
@@ -280,7 +312,7 @@ const genericService = {
             console.error('Error logging in:', error);
             throw error;
         }
-    },    
+    },
 
     register: async (username, password) => {
         const url = `${API_URL}/api/users/register`;
@@ -290,7 +322,7 @@ const genericService = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ username, password }),
-        };    
+        };
     },
 }
 

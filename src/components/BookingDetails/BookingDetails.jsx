@@ -1,13 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, Card, CardMedia, Rating, Chip } from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom';
+import genericService from '../../rest/GenericService';
 
 const BookingDetails = () => {
     const location = useLocation();
     const movie = location.state?.movie;
     const value = movie?.rating;
     const navigate = useNavigate();
+    const [newMovies, setNewMovies] = useState([]);
+
+    // Fetch new movies data from API
+    const fetchMovies = async () => {
+        try {
+            const newMovieData = await genericService.fetchUpcomingMovies();
+            console.log('movies', newMovieData);
+            setNewMovies(newMovieData);
+        } catch (error) {
+            console.error('Failed to fetch movie data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMovies();
+    }, []); // Empty dependency array, so it runs only once
 
     // Fallback for when no movie data is passed
     if (!movie) {
@@ -17,17 +33,11 @@ const BookingDetails = () => {
             </Box>
         );
     }
+
     const handleClick = () => {
         // Navigate to booking page with movie data
         navigate(`/movie-schedule/${movie.title}`, { state: { movie } });
     };
-
-    const similarMovies = [
-        { poster: "https://via.placeholder.com/300x450", title: "Movie 1" },
-        { poster: "https://via.placeholder.com/300x450", title: "Movie 2" },
-        { poster: "https://via.placeholder.com/300x450", title: "Movie 3" },
-        { poster: "https://via.placeholder.com/300x450", title: "Movie 3" },
-    ];
 
     return (
         <Box sx={{ padding: 4, backgroundColor: "#f5f5f5" }}>
@@ -99,23 +109,27 @@ const BookingDetails = () => {
             {/* Similar Movies Section */}
             <Box>
                 <Grid container spacing={2} padding={5}>
-                    {similarMovies.map((similar, index) => (
-                        <Grid item xs={12} sm={6} md={3} key={index}>
-                            <Card sx={{ width: "90%", borderRadius: 2 }}>
-                                <CardMedia
-                                    component="img"
-                                    image={similar.poster}
-                                    alt={similar.title}
-                                    sx={{ height: 500 }}
-                                />
-                                {/* <CardContent>
-                                    <Typography variant="subtitle1" sx={{ textAlign: "center", fontWeight: "bold" }}>
-                                        {similar.title}
-                                    </Typography>
-                                </CardContent> */}
-                            </Card>
-                        </Grid>
-                    ))}
+                    {newMovies?.results?.length > 0 ? (  // Check if newMovies and results exist and have items
+                        newMovies.results
+                            .sort(() => Math.random() - 0.5)  // Randomly shuffle the array
+                            .slice(0, 12)  // Limit to first 12 movies
+                            .map((movie, index) => (
+                                <Grid item xs={12} sm={12} md={2} key={index}>
+                                    <Card sx={{ width: "90%", borderRadius: 2 }}>
+                                        <CardMedia
+                                            component="img"
+                                            image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} // Map poster_path
+                                            alt={movie.title || movie.name}  // Ensure alt is set for accessibility
+                                            sx={{ height: 500 }}
+                                        />
+                                    </Card>
+                                </Grid>
+                            ))
+                    ) : (
+                        <Typography variant="h6" sx={{ textAlign: "center", width: "100%" }}>
+                            No similar movies available
+                        </Typography>
+                    )}
                 </Grid>
             </Box>
         </Box>
