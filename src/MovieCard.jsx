@@ -37,7 +37,7 @@ const MovieCard = ({ movie }) => {
           fullWidth
           sx={{ mt: 1, fontSize: '1rem', textTransform: 'none' }}
         >
-          Book Tickets
+          View
         </Button>
       </CardContent>
     </Card>
