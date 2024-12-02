@@ -62,7 +62,7 @@ function Login() {
       login(response); 
 
       // Redirect based on role
-      if (role === 'ADMIN' || role === 'manager') {
+      if (role === 'ADMIN' || role === 'MANAGER') {
         navigate('/create-movie');
       } else {
         navigate('/');

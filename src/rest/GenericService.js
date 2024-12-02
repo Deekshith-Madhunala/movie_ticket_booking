@@ -323,6 +323,20 @@ const genericService = {
             body: JSON.stringify({ username, password }),
         };
     },
+
+    getAllUsers: async () => {
+        const url = `${API_URL}/api/users`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching users data:', error);
+            throw error;
+        }
+    },
 }
 
 export default genericService;

@@ -6,7 +6,6 @@ import {
     FormControl,
     InputLabel,
     Grid,
-    Snackbar,
     TextField,
     Card,
     CardContent,
@@ -16,47 +15,83 @@ import {
 } from '@mui/material';
 import genericService from '../../rest/GenericService';
 import { useSnackbar } from '../snackBar/SnackbarContext';
+import { useAuth } from '../../auth/AuthContext';
 
 function CreateMovie() {
-    // States for form inputs
     const [movies, setMovies] = useState([]);
+    const [users, setUsers] = useState([]);
     const [theaters, setTheaters] = useState([]);
     const [timeslots, setTimeslots] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState('');
     const [selectedTheater, setSelectedTheater] = useState('');
-    const [selectedTimeSlots, setSelectedTimeSlots] = useState([]); // Changed to array for multiple values
+    const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
     const [selectedStartDate, setSelectedStartDate] = useState('');
     const [selectedEndDate, setSelectedEndDate] = useState('');
-    const [seats, setSeat] = useState(''); // New state for seat type
+    const [seats, setSeat] = useState('');
     const [price, setPrice] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState(null);
 
     const [movieName, setMovieName] = useState('');
     const [year, setYear] = useState('');
+    const [isManager, setIsManager] = useState(false); // State to check if the user is a manager
     const showSnackbar = useSnackbar();
+    const { user } = useAuth(); // Logged-in user details
 
-    // Fetch movies, theaters, and timeslots on component mount
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const moviesData = await genericService.getMovies();
                 const theatersData = await genericService.getTheaters();
                 const timeSlotsData = await genericService.getTimeSlots();
+                const usersData = await genericService.getAllUsers();
 
                 setMovies(moviesData);
                 setTheaters(theatersData);
-                setTimeslots(timeSlotsData); // Set the timeslots state
+                setTimeslots(timeSlotsData);
+                setUsers(usersData);
+
+                // Check if the logged-in user is a manager
+                const loggedInUser = usersData.find(u => u.name === user.name);
+                console.log('theater = ', theatersData);
+
+                console.log('logged in user = ', loggedInUser);
+                if (loggedInUser && loggedInUser.role === 'ADMIN') {
+                    setIsManager(true);
+                }
+
+                if (loggedInUser && loggedInUser.role === 'MANAGER') {
+                    // Find all theaters where the logged-in user is a manager
+                    const theatersManager = theatersData.filter(theater => {
+                        if (Array.isArray(theater.managers)) {
+                            // If "managers" is an array
+                            return theater.managers.includes(user.userId);
+                        } else if (theater.manager) {
+                            // If "manager" is a single value
+                            return theater.manager === user.userId;
+                        }
+                        return false;
+                    });
+
+                    if (theatersManager.length > 0) {
+                        console.log('Theaters Managed by User:', theatersManager);
+                        setTheaters(theatersManager); // Set only the theaters managed by the user
+                    } else {
+                        console.log('No theaters managed by this user.');
+                        setTheaters([]); // Clear theaters if no match
+                    }
+                }
+
+
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showSnackbar('Failed to fetch movies, theaters, or timeslots.', 'failure');
-
-                setError('Failed to fetch movies, theaters, or timeslots.');
+                showSnackbar('Failed to fetch data.', 'failure');
+                setError('Failed to fetch data.');
             }
         };
 
         fetchData();
-    }, []);
+    }, [user, showSnackbar]);
 
     const handleCreateMovie = async (e) => {
         e.preventDefault();
@@ -65,10 +100,7 @@ function CreateMovie() {
 
         try {
             await genericService.createMovie(movieName, parseInt(year, 10));
-
-            // setSuccessMessage('Movie created successfully!');
             showSnackbar('Movie created successfully!', 'success');
-
             setMovieName('');
             setYear('');
         } catch (error) {
@@ -76,35 +108,26 @@ function CreateMovie() {
             setError(error.message || 'An error occurred while creating the movie.');
         }
     };
-    // Handle form submission
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         setSuccessMessage('');
 
-        // Validate the input
-        if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedStartDate && price) {
+        if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedEndDate && price) {
             try {
-                // Create the showtime
                 const showtimeData = {
-                    movie: selectedMovie, // Ensure this is movieId
-                    theater: selectedTheater, // Ensure this is theaterId
-                    // showDate: selectedDate,
+                    movie: selectedMovie,
+                    theater: selectedTheater,
                     startDate: selectedStartDate,
                     endDate: selectedEndDate,
-                    timeSlotIds: selectedTimeSlots, // Use an array of timeSlotIds
+                    timeSlotIds: selectedTimeSlots,
                     price: parseFloat(price),
-                    availableSeats: seats // Include seat type if needed
+                    availableSeats: seats,
                 };
 
                 await genericService.createShowTimes(showtimeData);
-
-                // Show success message
-                // setSuccessMessage(`Showtime for the movie created successfully!`);
                 showSnackbar('Showtime created successfully!', 'success');
-
-
-                // Show alert with showtime data in JSON format
                 alert(JSON.stringify(showtimeData, null, 2));
             } catch (error) {
                 console.error('Error creating showtime:', error);
@@ -118,7 +141,7 @@ function CreateMovie() {
     return (
         <Box sx={{ background: '#f5f5f5' }}>
             <Container sx={{ display: 'flex', gap: 2, padding: 4 }}>
-                <Card variant="outlined" sx={{ maxWidth: "600px" }}>
+                <Card variant="outlined" sx={{ maxWidth: '600px' }}>
                     <CardHeader title="Create Showtime" subheader="Fill in the details below" />
                     <CardContent>
                         <form onSubmit={handleSubmit}>
@@ -128,7 +151,7 @@ function CreateMovie() {
                                         <InputLabel>Movie</InputLabel>
                                         <Select
                                             value={selectedMovie}
-                                            onChange={(e) => setSelectedMovie(e.target.value)} // Set movieId
+                                            onChange={(e) => setSelectedMovie(e.target.value)}
                                             required
                                         >
                                             {movies.map((movie) => (
@@ -144,7 +167,7 @@ function CreateMovie() {
                                         <InputLabel>Theater</InputLabel>
                                         <Select
                                             value={selectedTheater}
-                                            onChange={(e) => setSelectedTheater(e.target.value)} // Set theaterId
+                                            onChange={(e) => setSelectedTheater(e.target.value)}
                                             required
                                         >
                                             {theaters.map((theater) => (
@@ -187,8 +210,10 @@ function CreateMovie() {
                                         <Select
                                             multiple
                                             value={selectedTimeSlots}
-                                            onChange={(e) => setSelectedTimeSlots(e.target.value)} // Set timeSlotIds
-                                            renderValue={(selected) => selected.map((id) => timeslots.find(t => t.timeSlotId === id).timeSlot).join(', ')} // Display selected timeslots
+                                            onChange={(e) => setSelectedTimeSlots(e.target.value)}
+                                            renderValue={(selected) =>
+                                                selected.map((id) => timeslots.find((t) => t.timeSlotId === id).timeSlot).join(', ')
+                                            }
                                             required
                                         >
                                             {timeslots.map((time) => (
@@ -224,73 +249,43 @@ function CreateMovie() {
                                 Add Showtime
                             </Button>
                         </form>
+                    </CardContent>
+                </Card>
 
-                        {error && (
-                            <Snackbar
-                                open={true}
-                                message={error}
-                                autoHideDuration={6000}
-                                onClose={() => setError(null)}
-                            />
-                        )}
-                        {successMessage && (
-                            <Snackbar
-                                open={true}
-                                message={successMessage}
-                                autoHideDuration={6000}
-                                onClose={() => setSuccessMessage('')}
-                            />
-                        )}
-                    </CardContent>
-                </Card>
-                <Card variant="outlined" sx={{ maxWidth: '600px', margin: 'auto' }}>
-                    <CardHeader title="Add Movie" subheader="Fill in the details below" />
-                    <CardContent>
-                        <form onSubmit={handleCreateMovie}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Movie Name"
-                                        variant="outlined"
-                                        value={movieName}
-                                        onChange={(e) => setMovieName(e.target.value)}
-                                        required
-                                    />
+                {isManager && ( // Conditional rendering for Add Movie card
+                    <Card variant="outlined" sx={{ maxWidth: '600px', margin: 'auto' }}>
+                        <CardHeader title="Add Movie" subheader="Fill in the details below" />
+                        <CardContent>
+                            <form onSubmit={handleCreateMovie}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            label="Movie Name"
+                                            variant="outlined"
+                                            value={movieName}
+                                            onChange={(e) => setMovieName(e.target.value)}
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            label="Year"
+                                            type="number"
+                                            variant="outlined"
+                                            value={year}
+                                            onChange={(e) => setYear(e.target.value)}
+                                        />
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Year"
-                                        type="number"
-                                        variant="outlined"
-                                        value={year}
-                                        onChange={(e) => setYear(e.target.value)}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                                Create Movie
-                            </Button>
-                        </form>
-                        {error && (
-                            <Snackbar
-                                open={true}
-                                message={error}
-                                autoHideDuration={6000}
-                                onClose={() => setError(null)}
-                            />
-                        )}
-                        {successMessage && (
-                            <Snackbar
-                                open={true}
-                                message={successMessage}
-                                autoHideDuration={6000}
-                                onClose={() => setSuccessMessage('')}
-                            />
-                        )}
-                    </CardContent>
-                </Card>
+                                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+                                    Create Movie
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
             </Container>
         </Box>
     );
