@@ -47,7 +47,7 @@ const ConfirmPayment = () => {
         const bookingData = {
             paymentStatus: "DONE",
             bookingStatus: "CONFIRMED",
-            totalAmount: price,
+            totalAmount: price + 4.8 + 7.5,
             createdAt: new Date().toISOString(),
             seatType: selectedSeatType,
             cancelledAt: null,
@@ -92,7 +92,7 @@ const ConfirmPayment = () => {
                         </Grid>
                         <Grid item>
                             <Typography variant="body1">
-                                ${selectedSeatType === 'Gold' ? (price * selectedSeats.length) : (price * selectedSeats.length)}
+                                ${price}
                             </Typography>
                         </Grid>
                     </Grid>
@@ -116,7 +116,7 @@ const ConfirmPayment = () => {
                         </Grid>
                         <Grid item>
                             <Typography variant="body1">
-                                4.8
+                                $4.8
                             </Typography>
                         </Grid>
                     </Grid>
@@ -129,7 +129,7 @@ const ConfirmPayment = () => {
                         </Grid>
                         <Grid item>
                             <Typography variant="body1">
-                                ${(price * selectedSeats.length) + 4.8 + 7.5}
+                                ${price + 4.8 + 7.5}
                             </Typography>
                         </Grid>
                     </Grid>
@@ -161,7 +161,7 @@ const ConfirmPayment = () => {
                             Seat type: {selectedSeatType}
                         </Typography>
                         <Typography variant="h6" gutterBottom>
-                            Total Price: {price}
+                            Total Price: {price + 4.8 + 7.5}
                         </Typography>
                     </CardContent>
                     <CardActions>

@@ -94,7 +94,6 @@ const genericService = {
         try {
             // Call getMovie to fetch movie data from OMDb
             const movieData = await genericService.getMovie(title, year); // Wait for the movie data
-            console.log('Fetched Movie Data:', movieData);
 
             // Check if movieData is valid (ensure the movie exists in OMDb)
             if (!movieData || movieData.Response === 'False') {

@@ -200,7 +200,11 @@ function Navbar() {
               <Box sx={{ flexGrow: 0 }}>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar>{user?.name?.[0].toUpperCase() || 'U'}</Avatar>
+                    <Avatar
+                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user?.name || 'defaultName'}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                    >
+                      {user?.name?.[0]?.toUpperCase() || 'U'}
+                    </Avatar>
                   </IconButton>
                 </Tooltip>
                 <Menu

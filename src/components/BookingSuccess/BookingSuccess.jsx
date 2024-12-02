@@ -35,7 +35,7 @@ const BookingSuccess = () => {
                         Seat type: {selectedSeatType}
                     </Typography>
                     <Typography variant="h6" gutterBottom>
-                        Amount: {price}
+                        Amount: {price + 4.8 + 7.5}
                     </Typography>
                     <Typography variant="h6" color="green" gutterBottom>
                         Payment Status: Success

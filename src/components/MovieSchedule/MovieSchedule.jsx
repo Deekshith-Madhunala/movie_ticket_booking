@@ -254,43 +254,49 @@ const MovieSchedule = () => {
                   <Typography variant="h5">Choose a Theater:</Typography>
                 </Typography>
                 <Stack direction="row" spacing={4} flexWrap="wrap" justifyContent="flex-start" mb={4}>
-                  {theaters.map((theater) => (
-                    <Card
-                      key={theater.id}
-                      variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
-                      onClick={() => {
-                        setSelectedTheater(theater.name);
-                        setSelectedTheaterId(theater.theaterId);
-                        setSelectedSeat({ type: '', time: '' });
-                      }}
-                      sx={{
-                        padding: 2,
-                        borderRadius: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'start',
-                        backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
-                        color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
-                        width: 350,
-                      }}
-                    >
-                      <CardContent sx={{ textAlign: 'start', minHeight: '50px' }}>
-                        <Typography variant="h5">{theater.name}</Typography>
-                        <Typography variant="body1">{theater.address}</Typography>
-                        <br />
-                        <Typography>
-                          <Chip
-                            label="Chip Filled"
-                            sx={{
-                              backgroundColor: '#000000', // Custom background color
-                              color: '#ffffff', // Custom text color
-                            }}
-                          />
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {theaters.length > 0 ? (
+                    theaters.map((theater) => (
+                      <Card
+                        key={theater.id}
+                        variant={selectedTheater === theater.name ? 'contained' : 'outlined'}
+                        onClick={() => {
+                          setSelectedTheater(theater.name);
+                          setSelectedTheaterId(theater.theaterId);
+                          setSelectedSeat({ type: '', time: '' });
+                        }}
+                        sx={{
+                          padding: 2,
+                          borderRadius: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'start',
+                          backgroundColor: selectedTheater === theater.name ? '#BBDEFB' : 'transparent',
+                          color: selectedTheater === theater.name ? '#0D47A1' : 'inherit',
+                          width: 350,
+                        }}
+                      >
+                        <CardContent sx={{ textAlign: 'start', minHeight: '50px' }}>
+                          <Typography variant="h5">{theater.name}</Typography>
+                          <Typography variant="body1">{theater.address}</Typography>
+                          <br />
+                          <Typography>
+                            <Chip
+                              label="Theater"
+                              sx={{
+                                backgroundColor: '#000000', // Custom background color
+                                color: '#ffffff', // Custom text color
+                              }}
+                            />
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Typography variant="h6" color="text.secondary">
+                      There are no theaters available for this selected movie.
+                    </Typography>
+                  )}
                 </Stack>
 
                 <Typography variant="subtitle1" sx={{ marginBottom: 2, textAlign: 'start' }}>
@@ -299,7 +305,7 @@ const MovieSchedule = () => {
 
                 {/* Showtimes Section */}
                 <Stack spacing={2}>
-                  {selectedTheaterId && timeSlots[selectedTheaterId] && (
+                  {selectedTheaterId && timeSlots[selectedTheaterId] && timeSlots[selectedTheaterId].length > 0 ? (
                     <Grid container spacing={2}>
                       {timeSlots[selectedTheaterId].map((slot) => (
                         <Grid item key={slot.timeSlotId}>
@@ -314,8 +320,8 @@ const MovieSchedule = () => {
                             sx={{
                               width: '300px',
                               borderRadius: 2,
-                              backgroundColor: selectedSeat.time === slot.timeSlot? '#BBDEFB' : 'transparent',
-                              color: selectedSeat.time === slot.timeSlot? '#0D47A1' : 'inherit',
+                              backgroundColor: selectedSeat.time === slot.timeSlot ? '#BBDEFB' : 'transparent',
+                              color: selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'inherit',
                             }}
                           >
                             {slot.timeSlot}
@@ -323,8 +329,13 @@ const MovieSchedule = () => {
                         </Grid>
                       ))}
                     </Grid>
+                  ) : (
+                    <Typography variant="h6" color="text.secondary" textAlign={'start'}>
+                      No time slots available for the selected theater.
+                    </Typography>
                   )}
                 </Stack>
+
 
                 {/* Book Ticket Button */}
                 <Button

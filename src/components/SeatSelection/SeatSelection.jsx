@@ -81,7 +81,7 @@ const SeatSelection = () => {
                 selectedSeatType,
                 selectedTheaterId,
                 selectedSchedule,
-                price: price * selectedSeats.length
+                price: (price * selectedSeats.length)
             },
         });
     };
