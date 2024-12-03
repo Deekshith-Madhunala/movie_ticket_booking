@@ -38,6 +38,13 @@ function CreateMovie() {
     const showSnackbar = useSnackbar();
     const { user } = useAuth(); // Logged-in user details
 
+    const formatTo12Hour = (time24) => {
+        const [hour, minute] = time24.split(':').map(Number);
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -113,7 +120,7 @@ function CreateMovie() {
         e.preventDefault();
         setError(null);
         setSuccessMessage('');
-
+    
         if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedEndDate && price) {
             try {
                 const showtimeData = {
@@ -125,10 +132,18 @@ function CreateMovie() {
                     price: parseFloat(price),
                     availableSeats: seats,
                 };
-
+    
                 await genericService.createShowTimes(showtimeData);
                 showSnackbar('Showtime created successfully!', 'success');
-                alert(JSON.stringify(showtimeData, null, 2));
+    
+                // Clear the form fields by resetting the state
+                setSelectedMovie('');
+                setSelectedTheater('');
+                setSelectedTimeSlots([]);
+                setSelectedStartDate('');
+                setSelectedEndDate('');
+                setPrice('');
+                setSeat('');
             } catch (error) {
                 console.error('Error creating showtime:', error);
                 setError(error.message || 'An error occurred while creating the showtime.');
@@ -137,6 +152,7 @@ function CreateMovie() {
             setError('Please fill in all fields.');
         }
     };
+    
 
     return (
         <Box sx={{ background: '#f5f5f5' }}>
@@ -212,16 +228,21 @@ function CreateMovie() {
                                             value={selectedTimeSlots}
                                             onChange={(e) => setSelectedTimeSlots(e.target.value)}
                                             renderValue={(selected) =>
-                                                selected.map((id) => timeslots.find((t) => t.timeSlotId === id).timeSlot).join(', ')
+                                                selected
+                                                    .map((id) =>
+                                                        formatTo12Hour(timeslots.find((t) => t.timeSlotId === id).timeSlot)
+                                                    )
+                                                    .join(', ')
                                             }
                                             required
                                         >
                                             {timeslots.map((time) => (
                                                 <MenuItem key={time.timeSlotId} value={time.timeSlotId}>
-                                                    {time.timeSlot}
+                                                    {formatTo12Hour(time.timeSlot)}
                                                 </MenuItem>
                                             ))}
                                         </Select>
+
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} md={6}>

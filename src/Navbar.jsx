@@ -16,7 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import { Divider } from '@mui/material';
 
-const pages = ['Home', 'My Tickets', 'News'];
+const pages = ['Home', 'My Tickets'];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);

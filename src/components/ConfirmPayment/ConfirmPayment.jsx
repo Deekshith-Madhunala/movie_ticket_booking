@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Radio, RadioGroup, FormControlLabel, TextField, Card, CardContent, CardActions, Box, Container, Grid, Divider } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
@@ -55,6 +55,15 @@ const ConfirmPayment = () => {
         return `${date}T${time}:00${sign}${offsetHours}:${offsetMinutes}`;
     };
 
+
+    useEffect(() => {
+        if (user) {
+          console.log("User:", user); // Logs the resolved user object
+        } else {
+          console.log("User is not available yet");
+        }
+      }, [user]);      
+      
     // Function to navigate to BookingSuccess component
     const navigateToSuccess = async () => {
 
@@ -72,9 +81,6 @@ const ConfirmPayment = () => {
             seatSelected: selectedSeats,
             bookingDateAndTime: offsetDateTime
         };
-
-        console.log(bookingData);
-        console.log(offsetDateTime);        
         
         try {
             const bookingResponse = await genericService.createBooking(bookingData);

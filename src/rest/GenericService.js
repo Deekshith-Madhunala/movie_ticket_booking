@@ -337,6 +337,43 @@ const genericService = {
             throw error;
         }
     },
+
+    createUser: async (userData) => {
+        const postUrl = `${API_URL}/api/users`;
+        const postOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        };
+        try {
+            const postResponse = await fetch(postUrl, postOptions);
+            if (!postResponse.ok) {
+                throw new Error(`HTTP error! Status: ${postResponse.status}`);
+            }
+            return await postResponse.json();
+        } catch (error) {
+            console.error('Error creating user data:', error);
+            throw error;
+        }
+    },
+
+    getUserById: async (userId) => {
+        const url = `${API_URL}/api/users/${userId}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            throw error;
+        }
+    },
+
+
 }
 
 export default genericService;
