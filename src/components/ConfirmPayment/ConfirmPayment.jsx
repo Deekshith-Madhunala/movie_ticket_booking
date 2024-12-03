@@ -41,8 +41,24 @@ const ConfirmPayment = () => {
         navigateToSuccess();
     };
 
+    const convertToOffsetDateTime = (date, time) => {
+        // Combine the date and time into a full ISO string
+        const localDate = new Date(`${date}T${time}`);
+    
+        // Calculate the timezone offset in minutes
+        const timezoneOffset = -localDate.getTimezoneOffset(); // in minutes
+        const sign = timezoneOffset >= 0 ? '+' : '-';
+        const offsetHours = Math.abs(Math.floor(timezoneOffset / 60)).toString().padStart(2, '0');
+        const offsetMinutes = Math.abs(timezoneOffset % 60).toString().padStart(2, '0');
+    
+        // Format the result as OffsetDateTime
+        return `${date}T${time}:00${sign}${offsetHours}:${offsetMinutes}`;
+    };
+
     // Function to navigate to BookingSuccess component
     const navigateToSuccess = async () => {
+
+        const offsetDateTime = convertToOffsetDateTime(selectedDate, selectedTime);
 
         const bookingData = {
             paymentStatus: "DONE",
@@ -53,10 +69,13 @@ const ConfirmPayment = () => {
             cancelledAt: null,
             user: user?.userId,
             showtime: selectedSchedule,
-            seatSelected: selectedSeats
+            seatSelected: selectedSeats,
+            bookingDateAndTime: offsetDateTime
         };
 
         console.log(bookingData);
+        console.log(offsetDateTime);        
+        
         try {
             const bookingResponse = await genericService.createBooking(bookingData);
             console.log('Booking created successfullyyy:', bookingResponse);

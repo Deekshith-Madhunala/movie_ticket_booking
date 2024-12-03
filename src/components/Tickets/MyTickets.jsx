@@ -10,10 +10,13 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useAuth } from '../../auth/AuthContext';
+import { useSnackbar } from '../snackBar/SnackbarContext';
 
 function MyTickets() {
   const [bookings, setBookings] = React.useState([]);
   const { user, logout } = useAuth();
+
+  const showSnackbar = useSnackbar();
 
   const userId = user.id;
 
@@ -31,22 +34,33 @@ function MyTickets() {
     }
   };
 
-  const handleCancelBooking = async (bookingId) => {
+
+  const handleCancelBooking = async (bookingId, bookingDateTime) => {
     console.log("Cancelling booking:", bookingId);
 
-    try {
-      await genericService.cancelBooking(bookingId); // Call the API to cancel the booking
-      console.log('Booking canceled:', bookingId);
+    // Get the current time and the booking time in milliseconds
+    const currentTime = new Date().getTime();
+    const bookingTime = new Date(bookingDateTime.dateTime).getTime(); // Parse the booking dateTime
 
-      // Remove the canceled booking from the state
-      setBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking.bookingId !== bookingId)
-      );
-    } catch (error) {
-      console.error('Failed to cancel booking:', error.message);
+    // Calculate the time difference in hours
+    const timeDifferenceInHours = (bookingTime - currentTime) / (1000 * 60 * 60);
+
+    if (timeDifferenceInHours > 10) {
+      try {
+        await genericService.cancelBooking(bookingId); // Call the API to cancel the booking
+        console.log('Booking canceled:', bookingId);
+
+        // Remove the canceled booking from the state
+        setBookings((prevBookings) =>
+          prevBookings.filter((booking) => booking.bookingId !== bookingId)
+        );
+      } catch (error) {
+        console.error('Failed to cancel booking:', error.message);
+      }
+    } else {
+      showSnackbar('Cancellation is only allowed at least 10 hours before the booking time!', 'error');
     }
   };
-
 
 
   return (
@@ -103,10 +117,13 @@ function MyTickets() {
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
                   <strong>Status:</strong> {booking.bookingStatus}
                 </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                  <strong>Date and time :</strong> {`${booking.bookingDateAndTime.dateTime} ${booking.bookingDateAndTime.offset}`}
+                </Typography>
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={() => handleCancelBooking(booking.bookingId)} // Call handleCancelBooking with bookingId
+                  onClick={() => handleCancelBooking(booking.bookingId, booking.bookingDateAndTime)} // Call handleCancelBooking with bookingId
                   sx={{ mt: 2 }} // Margin top for spacing
                 >
                   Cancel Booking
