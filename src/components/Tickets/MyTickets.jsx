@@ -15,14 +15,12 @@ import { useSnackbar } from '../snackBar/SnackbarContext';
 function MyTickets() {
   const [bookings, setBookings] = React.useState([]);
   const { user, logout } = useAuth();
-
   const showSnackbar = useSnackbar();
-
   const userId = user.id;
 
   useEffect(() => {
     fetchBookings(); // Fetch bookings on component mount
-  }, []); // Empty dependency array to run once on mount
+  }, []);
 
   const fetchBookings = async () => {
     try {
@@ -34,34 +32,34 @@ function MyTickets() {
     }
   };
 
-
   const handleCancelBooking = async (bookingId, bookingDateTime) => {
-    console.log("Cancelling booking:", bookingId);
+    console.log('Cancelling booking:', bookingId);
 
-    // Get the current time and the booking time in milliseconds
     const currentTime = new Date().getTime();
-    const bookingTime = new Date(bookingDateTime.dateTime).getTime(); // Parse the booking dateTime
+    const bookingTime = new Date(bookingDateTime.dateTime).getTime();
 
-    // Calculate the time difference in hours
     const timeDifferenceInHours = (bookingTime - currentTime) / (1000 * 60 * 60);
 
     if (timeDifferenceInHours > 10) {
       try {
-        await genericService.cancelBooking(bookingId); // Call the API to cancel the booking
+        await genericService.updateBookingStatus(bookingId); // Call the API to cancel the booking
         console.log('Booking canceled:', bookingId);
 
-        // Remove the canceled booking from the state
-        setBookings((prevBookings) =>
-          prevBookings.filter((booking) => booking.bookingId !== bookingId)
-        );
+        // Refresh the bookings by fetching the updated data
+        await fetchBookings();
+
+        showSnackbar('Booking successfully canceled!', 'success');
       } catch (error) {
         console.error('Failed to cancel booking:', error.message);
+        showSnackbar('Failed to cancel booking. Please try again.', 'error');
       }
     } else {
-      showSnackbar('Cancellation is only allowed at least 10 hours before the booking time!', 'error');
+      showSnackbar(
+        'Cancellation is only allowed at least 10 hours before the booking time!',
+        'error'
+      );
     }
   };
-
 
   return (
     <Box sx={{ p: 2 }}>
@@ -84,8 +82,8 @@ function MyTickets() {
             >
               <CardMedia
                 component="img"
-                image={booking.movieDetails.poster} // Accessing poster from movieDetails
-                alt={booking.movieDetails.title} // Accessing title from movieDetails
+                image={booking.movieDetails.poster}
+                alt={booking.movieDetails.title}
                 sx={{
                   borderRadius: '8px',
                   marginBottom: '10px',
@@ -96,35 +94,109 @@ function MyTickets() {
               />
               <CardContent>
                 <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
-                  {booking.movieDetails.title} {/* Accessing title from movieDetails */}
+                  {booking.movieDetails.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                  <strong>Showtime:</strong> {booking.showtimeDetails.showtimeTime} on {new Date(booking.showtimeDetails.showDate).toLocaleDateString()}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
+                  <strong>Showtime:</strong> {booking.showtimeDetails.showtimeTime} on{' '}
+                  {new Date(booking.showtimeDetails.showDate).toLocaleDateString()}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                  <strong>Theater:</strong> {booking.theaterDetails.name}, {booking.theaterDetails.address}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
+                  <strong>Theater:</strong> {booking.theaterDetails.name},{' '}
+                  {booking.theaterDetails.address}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
                   <strong>Seat Type:</strong> {booking.showtimeDetails.seatType}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
                   <strong>Seats Selected:</strong>
-                  {booking.seatSelected ? booking.seatSelected.join(', ') : 'No seats selected'}
+                  {booking.seatSelected
+                    ? booking.seatSelected.join(', ')
+                    : 'No seats selected'}
                 </Typography>
                 <Typography variant="h6" sx={{ mt: 1, fontSize: '1rem' }}>
                   Total Amount: ${booking.totalAmount}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
                   <strong>Status:</strong> {booking.bookingStatus}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                  <strong>Date and time :</strong> {`${booking.bookingDateAndTime.dateTime} ${booking.bookingDateAndTime.offset}`}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
+                  <strong>Date:</strong>
+                  {(() => {
+                    const { dateTime } = booking.bookingDateAndTime;
+                    const parsedDate = new Date(dateTime);
+
+                    // If the date is invalid, return 'Invalid Date'
+                    if (isNaN(parsedDate)) {
+                      return 'Invalid Date';
+                    }
+
+                    // Format the date part (MM/DD/YYYY)
+                    return parsedDate.toLocaleDateString('en-US', {
+                      month: '2-digit',
+                      day: '2-digit',
+                      year: 'numeric',
+                    });
+                  })()}
                 </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.875rem' }}
+                >
+                  <strong>Time:</strong>
+                  {(() => {
+                    const { dateTime } = booking.bookingDateAndTime;
+                    const parsedDate = new Date(dateTime);
+
+                    // If the time is invalid, return 'Invalid Time'
+                    if (isNaN(parsedDate)) {
+                      return 'Invalid Time';
+                    }
+
+                    // Format the time part (h:mm a, 12-hour format)
+                    return parsedDate.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    });
+                  })()}
+                </Typography>
+
                 <Button
                   variant="outlined"
                   color="error"
-                  onClick={() => handleCancelBooking(booking.bookingId, booking.bookingDateAndTime)} // Call handleCancelBooking with bookingId
-                  sx={{ mt: 2 }} // Margin top for spacing
+                  onClick={() =>
+                    handleCancelBooking(
+                      booking.bookingId,
+                      booking.bookingDateAndTime
+                    )
+                  }
+                  sx={{ mt: 2 }}
                 >
                   Cancel Booking
                 </Button>

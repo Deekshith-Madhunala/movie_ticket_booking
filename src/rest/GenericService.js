@@ -373,6 +373,27 @@ const genericService = {
         }
     },
 
+    updateBookingStatus: async (bookingId) => {
+        const postUrl = `${API_URL}/api/bookings/status/${bookingId}`;
+        const postOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingId),
+        };
+        try {
+            const postResponse = await fetch(postUrl, postOptions);
+            if (!postResponse.ok) {
+                throw new Error(`HTTP error! Status: ${postResponse.status}`);
+            }
+            return await postResponse.json();
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+            throw error;
+        }
+    },
+
 
 }
 
