@@ -45,6 +45,21 @@ function CreateMovie() {
         return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
     };
 
+    const handleTheaterChange = (e) => {
+        const selectedTheaterId = e.target.value;
+        setSelectedTheater(selectedTheaterId);
+
+        // Find the selected theater from the theaters array
+        const selectedTheaterObj = theaters.find(
+            (theater) => theater.theaterId === selectedTheaterId
+        );
+
+        // Update the seats state based on the selected theater's totalSeats
+        if (selectedTheaterObj) {
+            setSeat(selectedTheaterObj.totalSeats);
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -120,7 +135,7 @@ function CreateMovie() {
         e.preventDefault();
         setError(null);
         setSuccessMessage('');
-    
+
         if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedEndDate && price) {
             try {
                 const showtimeData = {
@@ -132,10 +147,10 @@ function CreateMovie() {
                     price: parseFloat(price),
                     availableSeats: seats,
                 };
-    
+
                 await genericService.createShowTimes(showtimeData);
                 showSnackbar('Showtime created successfully!', 'success');
-    
+
                 // Clear the form fields by resetting the state
                 setSelectedMovie('');
                 setSelectedTheater('');
@@ -152,7 +167,7 @@ function CreateMovie() {
             setError('Please fill in all fields.');
         }
     };
-    
+
 
     return (
         <Box sx={{ background: '#f5f5f5' }}>
@@ -183,7 +198,7 @@ function CreateMovie() {
                                         <InputLabel>Theater</InputLabel>
                                         <Select
                                             value={selectedTheater}
-                                            onChange={(e) => setSelectedTheater(e.target.value)}
+                                            onChange={handleTheaterChange}
                                             required
                                         >
                                             {theaters.map((theater) => (
@@ -261,10 +276,12 @@ function CreateMovie() {
                                         label="Seats"
                                         type="number"
                                         value={seats}
-                                        onChange={(e) => setSeat(e.target.value)}
-                                        required
+                                        InputProps={{
+                                            readOnly: true, // Makes the field read-only
+                                        }}
                                     />
                                 </Grid>
+
                             </Grid>
                             <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
                                 Add Showtime
@@ -272,41 +289,6 @@ function CreateMovie() {
                         </form>
                     </CardContent>
                 </Card>
-
-                {isManager && ( // Conditional rendering for Add Movie card
-                    <Card variant="outlined" sx={{ maxWidth: '600px', margin: 'auto' }}>
-                        <CardHeader title="Add Movie" subheader="Fill in the details below" />
-                        <CardContent>
-                            <form onSubmit={handleCreateMovie}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Movie Name"
-                                            variant="outlined"
-                                            value={movieName}
-                                            onChange={(e) => setMovieName(e.target.value)}
-                                            required
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Year"
-                                            type="number"
-                                            variant="outlined"
-                                            value={year}
-                                            onChange={(e) => setYear(e.target.value)}
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                                    Create Movie
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-                )}
             </Container>
         </Box>
     );
