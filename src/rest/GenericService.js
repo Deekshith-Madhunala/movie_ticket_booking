@@ -21,6 +21,8 @@ const genericService = {
 
         try {
             const response = await fetch(url);
+            console.log("movie details", response);
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

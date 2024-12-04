@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from '../Navbar';
-import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register, BookingDetails } from '../pages';
+import { Home, MyTickets, News, Login, MovieSchedule, SeatSelection, ConfirmPayment, BookingSuccess, CreateMovie, Register, BookingDetails, AddMoviePage } from '../pages';
 import ProtectedRoute from './ProtectedRoute';
 import Footer from '../components/Footer/Footer';
+import AdminDashboard from '../components/admin/AdminDashboard/AdminDashboard';
 
 const AppRouter = () => {
 
@@ -26,6 +27,8 @@ const AppRouter = () => {
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/create-movie" element={<CreateMovie />} />
             <Route path="/booking-details/:movieId" element={<BookingDetails />} />
+            <Route path="/add-movie" element={<AddMoviePage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Route>
 
           <Route path="*" element={<div>404 - Not Found</div>} />

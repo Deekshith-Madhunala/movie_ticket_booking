@@ -59,7 +59,7 @@ function CreateMovie() {
                 setUsers(usersData);
 
                 // Check if the logged-in user is a manager
-                const loggedInUser = usersData.find(u => u.name === user.name);
+                const loggedInUser = usersData.find(u => u.firstName === user.firstName);
                 console.log('theater = ', theatersData);
 
                 console.log('logged in user = ', loggedInUser);

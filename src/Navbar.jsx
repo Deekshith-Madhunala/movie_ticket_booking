@@ -224,7 +224,7 @@ function Navbar() {
                   onClose={handleCloseUserMenu}
                 >
                   <MenuItem onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{user?.name}</Typography>
+                    <Typography textAlign="center">{user?.firstName}</Typography>
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
                     <Typography textAlign="center">Logout</Typography>

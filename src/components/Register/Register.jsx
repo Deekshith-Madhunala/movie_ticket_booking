@@ -23,6 +23,11 @@ function Register() {
 
   // State to store input values
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [city, setCity] = useState('');
+  const [dob, setDob] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,42 +45,49 @@ function Register() {
   const handleRegister = async (event) => {
     event.preventDefault();
     setError('');
-  
+
     // Validate email and password
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
       return;
     }
-  
+
     if (!validatePassword(password)) {
       setError('Password must be at least 6 characters long.');
       return;
     }
-  
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-  
-    const name = email.substring(0, email.indexOf('@'));
-    const role = 'USER';
-  
+
     // Construct newUser without ID
-    const newUser = { email, password, name, role, phoneNumber };
-  
+    const newUser = {
+      firstName,
+      lastName,      
+      zipCode,
+      city,
+      email,
+      password,
+      role: 'USER',
+      phoneNumber,
+      dateOfBirth: dob
+    };
+
     try {
       // Call createUser to get the new user ID
       const userdata = await genericService.createUser(newUser); // Wait for the promise to resolve
       console.log('userdata', userdata); // Logs the integer ID like 10028
       // const userDetails = await genericService.getUserById(userdata);
       // console.log('userDetails', userDetails);
-      
-  
+
+
       // Add the ID to the newUser object
-  
+
       // Call the register function with the updated user object
       register(userdata);
-  
+
       // Navigate to the desired page after successful registration
       navigate('/');
     } catch (error) {
@@ -83,7 +95,7 @@ function Register() {
       setError('Registration failed. Please try again.');
     }
   };
-  
+
 
   return (
     <BackgroundBox>
@@ -99,11 +111,51 @@ function Register() {
           )}
           <TextField
             variant="outlined"
+            label="First Name"
+            fullWidth
+            margin="normal"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            label="Last Name"
+            fullWidth
+            margin="normal"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
             label="Email"
             fullWidth
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            label="Date of Birth"
+            fullWidth
+            margin="normal"
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            label="City"
+            fullWidth
+            margin="normal"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            label="ZipCode"
+            fullWidth
+            margin="normal"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
           />
           <TextField
             variant="outlined"
