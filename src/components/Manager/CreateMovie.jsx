@@ -16,6 +16,7 @@ import {
 import genericService from '../../rest/GenericService';
 import { useSnackbar } from '../snackBar/SnackbarContext';
 import { useAuth } from '../../auth/AuthContext';
+import { CircularProgress } from '@mui/material';
 
 function CreateMovie() {
     const [movies, setMovies] = useState([]);
@@ -30,6 +31,8 @@ function CreateMovie() {
     const [seats, setSeat] = useState('');
     const [price, setPrice] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Loading state
+
     const [error, setError] = useState(null);
 
     const [movieName, setMovieName] = useState('');
@@ -135,6 +138,7 @@ function CreateMovie() {
         e.preventDefault();
         setError(null); // Clear previous error messages
         setSuccessMessage(''); // Clear previous success message
+        setIsLoading(true); // Start loading
 
         // Check if all required fields are filled
         if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedEndDate && price) {
@@ -168,6 +172,7 @@ function CreateMovie() {
                     showSnackbar(error.message || 'An error occurred while creating the showtime.', 'error');
                 }
             }
+            setIsLoading(false); // Start loading
 
             // Clear the form fields after both success or error
             setSelectedMovie('');
@@ -307,8 +312,12 @@ function CreateMovie() {
                                 </Grid>
 
                             </Grid>
-                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                                Add Showtime
+                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} disabled={isLoading}>
+                                {isLoading ? (
+                                    <CircularProgress size={24} sx={{ color: 'white' }} />
+                                ) : (
+                                    'Add Showtime'
+                                )}
                             </Button>
                         </form>
                     </CardContent>
