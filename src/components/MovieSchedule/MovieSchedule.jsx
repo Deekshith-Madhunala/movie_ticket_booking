@@ -46,6 +46,13 @@ const MovieSchedule = () => {
     });
   };
 
+  const formatTimeTo12Hour = (time) => {
+    const [hours, minutes] = time.split(':').map(Number); // Split the time string and parse it
+    const isAM = hours < 12;
+    const formattedHours = hours % 12 || 12; // Convert 0 or 12 to 12 in 12-hour format
+    return `${formattedHours}:${minutes.toString().padStart(2, '0')} ${isAM ? 'AM' : 'PM'}`;
+  };
+
   const dates = generateDates();
 
   const handleBookTicket = () => {
@@ -324,7 +331,7 @@ const MovieSchedule = () => {
                               color: selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'inherit',
                             }}
                           >
-                            {slot.timeSlot}
+                            {formatTimeTo12Hour(slot.timeSlot)}
                           </Button>
                         </Grid>
                       ))}

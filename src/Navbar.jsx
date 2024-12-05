@@ -98,18 +98,33 @@ function Navbar() {
                 sx={{ display: { xs: 'block', md: 'none' } }}
               >
                 {user ? (
-                  pages.map((page) => (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography
-                        textAlign="center"
-                        component={Link}
-                        to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
-                        sx={{ color: '#000' }}
-                      >
-                        {page}
-                      </Typography>
-                    </MenuItem>
-                  ))
+                  <>
+                    {pages.map((page) => (
+                      <MenuItem key={page} onClick={handleCloseNavMenu}>
+                        <Typography
+                          textAlign="center"
+                          component={Link}
+                          to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
+                          sx={{ color: '#000' }}
+                        >
+                          {page}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                    {/* Admin menu item */}
+                    {user.role === 'ADMIN' && (
+                      <MenuItem onClick={handleCloseNavMenu}>
+                        <Typography
+                          textAlign="center"
+                          component={Link}
+                          to="/admin"
+                          sx={{ color: '#000' }}
+                        >
+                          Admin
+                        </Typography>
+                      </MenuItem>
+                    )}
+                  </>
                 ) : (
                   <>
                     <MenuItem onClick={handleCloseNavMenu}>
@@ -160,23 +175,36 @@ function Navbar() {
             {/* Desktop menu items */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: 2 }}>
               {user ? (
-                pages.map((page) => (
-                  <Button
-                    key={page}
-                    onClick={handleCloseNavMenu}
-                    component={Link}
-                    to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
-                    sx={{ my: 2, color: '#000', display: 'block' }}
-                  >
-                    {page}
-                  </Button>
-                ))
+                <>
+                  {pages.map((page) => (
+                    <Button
+                      key={page}
+                      onClick={handleCloseNavMenu}
+                      component={Link}
+                      to={page === 'Home' ? '/' : `/${page.toLowerCase().replace(' ', '-')}`}
+                      sx={{ my: 2, color: '#000', display: 'block' }}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  {/* Admin button */}
+                  {user.role === 'ADMIN' && (
+                    <Button
+                      onClick={handleCloseNavMenu}
+                      component={Link}
+                      to="/admin"
+                      sx={{ my: 2, color: '#000', display: 'block' }}
+                    >
+                      Admin
+                    </Button>
+                  )}
+                </>
               ) : (
                 <>
                   <Button
                     onClick={handleCloseNavMenu}
                     component={Link}
-                    variant='contained'
+                    variant="contained"
                     to="/login"
                     sx={{ my: 2, color: '#000', display: 'block', textTransform: 'none' }}
                   >
@@ -185,7 +213,7 @@ function Navbar() {
                   <Button
                     onClick={handleCloseNavMenu}
                     component={Link}
-                    variant='contained'
+                    variant="contained"
                     to="/register"
                     sx={{ my: 2, color: '#000', display: 'block', textTransform: 'none' }}
                   >
