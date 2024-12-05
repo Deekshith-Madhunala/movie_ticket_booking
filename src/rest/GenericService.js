@@ -168,14 +168,21 @@ const genericService = {
         try {
             const postResponse = await fetch(postUrl, postOptions);
             if (!postResponse.ok) {
-                throw new Error(`HTTP error! Status: ${postResponse.status}`);
+                if (postResponse.status === 409) {
+                    // If the response status is 409, it's likely a conflict (duplicate showtime)
+                    throw new Error('A duplicate showtime exists for this movie and theater. Please check the details.');
+                } else {
+                    // For other errors, throw a generic HTTP error
+                    throw new Error(`HTTP error! Status: ${postResponse.status}`);
+                }
             }
+            // If successful, return the response JSON (which should contain the created showtime ID or success confirmation)
             return await postResponse.json();
         } catch (error) {
             console.error('Error creating showtimes data:', error);
             throw error; // Re-throw the error for handling in the calling code
         }
-    },
+    },    
 
     getAllShowTimes: async () => {
         const url = `${API_URL}/api/showtimes`;  // Make sure API_URL is valid and doesn't have '+/'

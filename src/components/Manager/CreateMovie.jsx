@@ -133,11 +133,13 @@ function CreateMovie() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        setSuccessMessage('');
+        setError(null); // Clear previous error messages
+        setSuccessMessage(''); // Clear previous success message
 
+        // Check if all required fields are filled
         if (selectedMovie && selectedTheater && selectedTimeSlots.length > 0 && selectedStartDate && selectedEndDate && price) {
             try {
+                // Prepare the showtime data
                 const showtimeData = {
                     movie: selectedMovie,
                     theater: selectedTheater,
@@ -148,23 +150,45 @@ function CreateMovie() {
                     availableSeats: seats,
                 };
 
-                await genericService.createShowTimes(showtimeData);
-                showSnackbar('Showtime created successfully!', 'success');
+                // Call the service to create the showtime
+                const response = await genericService.createShowTimes(showtimeData);
+                console.log('Showtime created:', response);
 
-                // Clear the form fields by resetting the state
-                setSelectedMovie('');
-                setSelectedTheater('');
-                setSelectedTimeSlots([]);
-                setSelectedStartDate('');
-                setSelectedEndDate('');
-                setPrice('');
-                setSeat('');
+                // Show success message in snackbar if showtime was created successfully
+                showSnackbar('Showtime created successfully!', 'success');
             } catch (error) {
                 console.error('Error creating showtime:', error);
-                setError(error.message || 'An error occurred while creating the showtime.');
+                if (error.message && error.message.includes('Duplicate showtime found')) {
+                    // Show specific error message if it's a duplicate
+                    setError('A duplicate showtime exists for this movie and theater. Please check the details.');
+                    showSnackbar('A duplicate showtime exists for this movie and theater. Please check the details.', 'warning');
+                } else {
+                    // Generic error message for other issues
+                    setError(error.message || 'An error occurred while creating the showtime.');
+                    showSnackbar(error.message || 'An error occurred while creating the showtime.', 'error');
+                }
             }
+
+            // Clear the form fields after both success or error
+            setSelectedMovie('');
+            setSelectedTheater('');
+            setSelectedTimeSlots([]);
+            setSelectedStartDate('');
+            setSelectedEndDate('');
+            setPrice('');
+            setSeat('');
         } else {
             setError('Please fill in all fields.');
+            showSnackbar('Please fill in all fields.', 'warning');
+
+            // Clear the form fields even when there's an error due to missing fields
+            setSelectedMovie('');
+            setSelectedTheater('');
+            setSelectedTimeSlots([]);
+            setSelectedStartDate('');
+            setSelectedEndDate('');
+            setPrice('');
+            setSeat('');
         }
     };
 
