@@ -188,7 +188,7 @@ function MyTickets() {
                 </Typography>
 
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   color="error"
                   onClick={() =>
                     handleCancelBooking(
@@ -197,8 +197,9 @@ function MyTickets() {
                     )
                   }
                   sx={{ mt: 2 }}
+                  disabled={booking.bookingStatus !== 'CONFIRMED'} // Disable button if not confirmed
                 >
-                  Cancel Booking
+                  {booking.bookingStatus === 'CONFIRMED' ? 'Cancel Booking' : 'Cancelled'}
                 </Button>
               </CardContent>
             </Card>
