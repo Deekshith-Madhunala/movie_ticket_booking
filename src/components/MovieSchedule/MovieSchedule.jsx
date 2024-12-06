@@ -117,14 +117,23 @@ const MovieSchedule = () => {
             timeSlotMap[schedule.theater] = [];
           }
 
-          // Add the time slots for this specific showtime to the theater's time slots list
-          timeSlotMap[schedule.theater] = [
-            ...timeSlotMap[schedule.theater],
-            ...timeSlotsData.map(slot => ({
+          // Add and sort the time slots for this specific showtime
+          const sortedTimeSlots = timeSlotsData
+            .map(slot => ({
               timeSlotId: slot.timeSlotId,
               timeSlot: slot.timeSlot,
               showtimeId: schedule.showtimeId,
             }))
+            .sort((a, b) => {
+              const timeA = new Date(`1970-01-01T${a.timeSlot}:00`);
+              const timeB = new Date(`1970-01-01T${b.timeSlot}:00`);
+              return timeA - timeB; // Sort by chronological order
+            });
+
+          // Add the sorted time slots to the theater's time slots list
+          timeSlotMap[schedule.theater] = [
+            ...timeSlotMap[schedule.theater],
+            ...sortedTimeSlots,
           ];
         })
       );
@@ -135,6 +144,8 @@ const MovieSchedule = () => {
       console.error('Failed to fetch show schedules:', error);
     }
   };
+
+
 
   useEffect(() => {
     if (selectedTheaterId) {
@@ -306,35 +317,52 @@ const MovieSchedule = () => {
                   )}
                 </Stack>
 
+                {/* Time Slots Section */}
                 <Typography variant="subtitle1" sx={{ marginBottom: 2, textAlign: 'start' }}>
                   <Typography variant="h5">Choose a Showtime:</Typography>
                 </Typography>
-
-                {/* Showtimes Section */}
                 <Stack spacing={2}>
                   {selectedTheaterId && timeSlots[selectedTheaterId] && timeSlots[selectedTheaterId].length > 0 ? (
                     <Grid container spacing={2}>
-                      {timeSlots[selectedTheaterId].map((slot) => (
-                        <Grid item key={slot.timeSlotId}>
-                          <Button
-                            fullWidth
-                            size="large"
-                            variant={selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
-                            onClick={() => {
-                              setSelectedSeat({ type: 'Regular', time: slot.timeSlot });
-                              setShowTimes(slot.showtimeId);
-                            }}
-                            sx={{
-                              width: '300px',
-                              borderRadius: 2,
-                              backgroundColor: selectedSeat.time === slot.timeSlot ? '#BBDEFB' : 'transparent',
-                              color: selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'inherit',
-                            }}
-                          >
-                            {formatTimeTo12Hour(slot.timeSlot)}
-                          </Button>
-                        </Grid>
-                      ))}
+                      {timeSlots[selectedTheaterId].map((slot) => {
+                        // Parse the time slot to check if it is expired
+                        const [hour, minute] = slot.timeSlot.split(':').map(Number);
+                        const slotTime = new Date();
+                        slotTime.setHours(hour, minute, 0);
+
+                        // Check if the slot is expired (current time > slot time and the selected date is today)
+                        const isExpired = new Date() > slotTime && dayjs(selectedDate).isSame(dayjs(), 'day');
+
+                        return (
+                          <Grid item key={slot.timeSlotId}>
+                            <Button
+                              fullWidth
+                              size="large"
+                              variant={selectedSeat.time === slot.timeSlot ? 'contained' : 'outlined'}
+                              onClick={() => {
+                                if (!isExpired) {
+                                  // Update the selected seat's time
+                                  setSelectedSeat({ type: 'Regular', time: slot.timeSlot });
+
+                                  // Update the showtimeId in the state
+                                  setShowTimes((prevShowTimes) => [...prevShowTimes, slot.showtimeId]);
+                                }
+                              }}
+                              disabled={isExpired}  // Disable button if the slot is expired
+                              sx={{
+                                width: '300px',
+                                borderRadius: 2,
+                                backgroundColor: selectedSeat.time === slot.timeSlot ? '#BBDEFB' : 'transparent',
+                                color: selectedSeat.time === slot.timeSlot ? '#0D47A1' : 'inherit',
+                                pointerEvents: isExpired ? 'none' : 'auto',  // Prevent click interactions if expired
+                                opacity: isExpired ? 0.5 : 1,  // Reduce opacity for expired slots
+                              }}
+                            >
+                              {formatTimeTo12Hour(slot.timeSlot)}
+                            </Button>
+                          </Grid>
+                        );
+                      })}
                     </Grid>
                   ) : (
                     <Typography variant="h6" color="text.secondary" textAlign={'start'}>
@@ -342,6 +370,7 @@ const MovieSchedule = () => {
                     </Typography>
                   )}
                 </Stack>
+
 
 
                 {/* Book Ticket Button */}

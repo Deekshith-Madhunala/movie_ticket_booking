@@ -92,15 +92,15 @@ const genericService = {
         }
     },
 
-    createMovie: async (title, year) => {
+    createMovie: async (movieData) => {
         try {
             // Call getMovie to fetch movie data from OMDb
-            const movieData = await genericService.getMovie(title, year); // Wait for the movie data
+            // const movieData = await genericService.getMovie(title, year); // Wait for the movie data
 
             // Check if movieData is valid (ensure the movie exists in OMDb)
-            if (!movieData || movieData.Response === 'False') {
-                throw new Error(`Movie not found: ${movieData.Error || 'Unknown error'}`);
-            }
+            // if (!movieData || movieData.Response === 'False') {
+            //     throw new Error(`Movie not found: ${movieData.Error || 'Unknown error'}`);
+            // }
 
             // Map the OMDb fields to your backend model
             const mappedMovieData = {

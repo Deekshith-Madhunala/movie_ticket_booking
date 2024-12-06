@@ -77,7 +77,7 @@ const ConfirmPayment = () => {
             seatType: selectedSeatType,
             cancelledAt: null,
             user: user?.userId,
-            showtime: selectedSchedule,
+            showtime: selectedSchedule[0],
             seatSelected: selectedSeats,
             bookingDateAndTime: offsetDateTime
         };
